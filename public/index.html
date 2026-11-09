@@ -286,20 +286,21 @@ dialog[open]{animation:rise .25s ease both}
 .danger{color:var(--bad);border-color:var(--bad-line);box-shadow:0 2px 0 var(--bad-line)}
 .row{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end}
 
-/* sign-up */
-.gate-wrap{display:flex;justify-content:center;padding-block:118px 56px}
-.gate-card{--pw:150px;position:relative;width:100%;max-width:480px;padding:30px 28px 28px;border-radius:30px;border:1px solid var(--line);
-  background:linear-gradient(180deg,rgba(255,255,255,.97),rgba(238,246,255,.93));box-shadow:0 40px 70px -48px rgba(22,119,242,.55)}
+/* sign-up pop-up */
+.gate-card,.inp,.rule,.tile,.tbl-wrap{box-sizing:border-box}
+#authDlg{width:min(480px,calc(100vw - 32px));max-height:calc(100% - 12px);overflow-x:hidden;overflow-y:auto;background:transparent;box-shadow:none;padding:112px 0 16px;border-radius:0}
+#authDlg::backdrop{background:rgba(11,27,51,.38);backdrop-filter:blur(6px)}
+.gate-card{--pw:150px;position:relative;width:100%;padding:28px 26px 26px;border-radius:30px;border:1px solid var(--line);
+  background:linear-gradient(180deg,#fff,#f1f7ff);box-shadow:0 40px 80px -36px rgba(11,27,51,.45)}
 .gate-card .peek{left:calc(50% - var(--pw) / 2);z-index:2}
-#gIn{display:flex;flex-direction:column;gap:14px}
+#gIn{display:flex;flex-direction:column;gap:14px;position:relative;z-index:1}
 #gIn>*{animation:stepIn .45s cubic-bezier(.2,.8,.2,1) backwards}
 #gIn>*:nth-child(2){animation-delay:.04s}#gIn>*:nth-child(3){animation-delay:.08s}#gIn>*:nth-child(4){animation-delay:.12s}#gIn>*:nth-child(5){animation-delay:.16s}
-#gIn h1{margin:0;font-size:clamp(30px,6.4vw,42px);line-height:1.05;letter-spacing:-.045em;font-weight:780;text-wrap:balance}
+#gIn h2{margin:0;font-size:clamp(30px,6.4vw,40px);line-height:1.05;letter-spacing:-.045em;font-weight:780;text-wrap:balance}
 #gIn .pill{align-self:flex-start}
-.gsteps{display:flex;gap:6px}
-.gsteps i{height:6px;flex:1;border-radius:9px;background:var(--tint-2);transition:background .3s}
-.gsteps i.on{background:var(--grad)}
-.gtop{display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:13px;font-weight:700;color:var(--faint);letter-spacing:.04em;text-transform:uppercase}
+.tabs{display:grid;grid-template-columns:1fr 1fr;padding:4px;border-radius:999px;background:var(--tint-2)}
+.tabs button{min-height:42px;border:0;border-radius:999px;background:transparent;font-weight:700;font-size:15px;color:var(--muted);transition:background .2s,color .2s}
+.tabs button[aria-selected="true"]{background:#fff;color:var(--blue-d);box-shadow:0 2px 10px -3px rgba(22,119,242,.45)}
 .gform{display:flex;flex-direction:column;gap:14px}
 .gform .btn{width:100%}
 .field{display:flex;flex-direction:column;gap:6px;min-width:0}
@@ -307,24 +308,46 @@ dialog[open]{animation:rise .25s ease both}
 .field small{color:var(--muted);font-size:13px}
 .inp{width:100%;min-height:52px;padding:0 16px;border-radius:14px;border:1.5px solid var(--line-2);background:#fff;color:var(--ink);font:inherit;font-size:17px;box-shadow:0 2px 0 var(--line-2);transition:border-color .15s,box-shadow .15s}
 .inp:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 4px rgba(31,139,255,.18)}
-.inp.code{letter-spacing:.42em;text-align:center;font-size:26px;font-weight:750;font-variant-numeric:tabular-nums}
-.grow{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
-@media (max-width:420px){.grow{grid-template-columns:minmax(0,1fr)}}
-.at{position:relative}
-.at>span{position:absolute;left:16px;top:50%;transform:translateY(-50%);color:var(--faint);font-weight:750;pointer-events:none}
-.at .inp{padding-left:36px}
+.rule{margin:0;padding:12px 14px;border-radius:14px;background:var(--tint);border:1px solid var(--line);font-size:14.5px;line-height:1.45}
+.rule b{color:var(--blue-d)}
 .ustat{margin:0;font-size:14px;font-weight:650;min-height:20px;color:var(--muted)}
 .ustat.ok{color:var(--good)}
 .ustat.no{color:var(--bad)}
 .gerr{margin:0;color:var(--bad);font-size:14px;font-weight:600}
 .gerr:empty{display:none}
-.gnote{margin:0;color:var(--good);font-size:14px;font-weight:600}
-.gnote:empty{display:none}
-.glinks{display:flex;flex-wrap:wrap;gap:6px 18px;justify-content:center}
-.linkish{background:none;border:0;padding:6px 0;color:var(--blue-d);font-weight:650;font-size:14px;text-decoration:underline;text-underline-offset:3px}
-.gw-art{width:150px;align-self:center}
-#gIn .welcome{text-align:center;align-items:center}
+.showpw{display:flex;align-items:center;gap:8px;font-size:14px;color:var(--muted);font-weight:600;align-self:flex-start}
+.showpw input{width:18px;height:18px;accent-color:var(--blue)}
+.fine{margin:0;font-size:13px;color:var(--muted);text-align:center}
 .acct{font-weight:700}
+@media (max-width:520px){.chip.acct{display:none}}
+.top .wrap{flex-wrap:wrap}
+/* admin */
+.admin{padding-block:6px 56px;display:flex;flex-direction:column;gap:20px}
+.admin h1{margin:12px 0 0;font-size:clamp(32px,5vw,46px);letter-spacing:-.045em;line-height:1.05;font-weight:780}
+.admin .lead{margin-top:8px;max-width:60ch}
+.tiles{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+@media (max-width:720px){.tiles{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.tile{padding:16px 18px;border-radius:20px;border:1px solid var(--line);background:#fff}
+.tile b{display:block;font-size:30px;letter-spacing:-.04em;line-height:1.1;font-variant-numeric:tabular-nums}
+.tile span{font-size:12px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--faint)}
+.tbar{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.tbar .inp{max-width:320px;min-height:44px;font-size:16px}
+.tbl-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:20px;background:#fff}
+.tbl{width:100%;border-collapse:collapse;font-size:14.5px;min-width:820px}
+.tbl th{text-align:left;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--faint);font-weight:700;padding:12px 14px;border-bottom:1px solid var(--line);background:var(--tint);white-space:nowrap}
+.tbl td{padding:11px 14px;border-bottom:1px solid var(--line);font-variant-numeric:tabular-nums;white-space:nowrap}
+.tbl tr:last-child td{border-bottom:0}
+.tbl .u{font-weight:750}
+.badge{display:inline-block;margin-left:6px;padding:2px 8px;border-radius:99px;background:var(--tint-2);color:var(--blue-d);font-size:11px;font-weight:750;letter-spacing:.04em;text-transform:uppercase;vertical-align:1px}
+.mbar{display:inline-flex;align-items:center;gap:8px}
+.mbar i{display:block;width:64px;height:6px;border-radius:9px;background:var(--tint-2);overflow:hidden}
+.mbar i b{display:block;height:100%;background:var(--grad)}
+.empty{margin:0;padding:28px;text-align:center;color:var(--muted)}
+.nsm{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font-size:12px;font-weight:800;background:var(--tint-2);color:var(--faint)}
+.nsm.on{background:var(--grad);color:#fff}
+.nsm svg{width:14px;height:14px}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:80;max-width:calc(100vw - 32px);
+  padding:12px 18px;border-radius:999px;background:var(--ink);color:#fff;font-weight:650;font-size:14.5px;box-shadow:0 16px 30px -12px rgba(11,27,51,.5);animation:rise .35s ease both}
 /* motion */
 .sky::before{animation:drift1 20s ease-in-out infinite alternate}
 .sky::after{animation:drift2 24s ease-in-out infinite alternate}
@@ -404,10 +427,7 @@ dialog[open]{animation:rise .25s ease both}
 <body>
 <div class="sky" aria-hidden="true"><div class="grid"></div><div class="orb"></div></div>
 
-<section id="gate" class="view" hidden>
-  <header class="top"><div class="wrap"><span class="brand"><img src="data:image/webp;base64,UklGRgQuAABXRUJQVlA4IPgtAABQygCdASpAAUABPjEWiUMiISEUmTXMIAMEpud8DnKaoA7l3b/iun8635L+8/un/dP3M+ce2f4v+7/rP+/+8XxXjqezf0d/c/y35lfNT/berb9JewX+tH7E++H/ietvzKfuP+3Hu1/6z9mffD/g/9f+z/+j+Rj+j/7Prcv8D/zPYn/kf+m/+/r2/ur8PX9b/5n7qe2N19m/D9xX+u/wnN+qJvyX8Rfrf8N7bO135lah34//QP9x+XfygwlXBHe7/of4P1Pvqv/D6OfXv/h/2r4Af1e/6/lp+KR99/5/sC/zf+x/+7/Ue8R/e/tt6XfqD9q/ga/XP/r9hP9uf//7xn7XnrkvG8Nfi6XjeGvxdLxvDX3+yaqzqpqf9EKyvqcxOPPF0u8OsZ/HX8U47HG3hU2zQM3fQrkp/b5itzE5q08SShII9Lwk4rygY9R9j+CV0xOPO1oOW4DvJRQykzLSsSVmMrGhrcBLZXyCTrmnVBVf40sVqI3FboHgleYDXc9eFt+72Y+PwBL6d7SOB+1Uu/c5xE+huVDwv0IlBVBx0ww/0PEtqCP2achng9Fg5ED/7B29Tjf4zz2yH017g5w24N9Bo+aK9/ep6lwK3xJUJKQpvqoHsJuLiQULjh553E/a/G5cZkcE7rxv9cJUfgoimKDOKMmHZkE5aB4U9xJpDj7Z0cCtejKPS2lGHJ0L/6HgmapbrOMuPaSgwythxn+kTEkLvVg87+rfhOUpKsPqhbd+mJd8307C/4EebRrXBlaJlD87DkcAhRFj8HsPrFawbzDWaq3EgiR+jb+t7XlhxusqoVKXuqz6V2458DB2F2aAryI/0JC4Tvynb7q7uu1zSsAMlPqC6IPVaOISGsxz4+n8MW36DYK+fe6BdfNcXkZpS3Z/3evqgWXAqaOuRw7X/uF3q2xjnzf7C1WpkDlse2rojql1k15dAHqKcbh+qrTOzdq1eLuxf2srV38hYgfzpKzQw4cwNYjj/NC81yZVbCsthR7/EGLaBzKGfX0JFC2Cq/0rw8jeMvNtVp2qhYwkvapNQQBkrqpqRn8tXiUofDBwdTOdgvroKP9fcQywhQn810nfTWODXzGm52nwwRGbamjWHGuHDy+zZ7n8LDokkc8k9iwRE2VO1KZ/e3KWe3yk9SAWGvYBWzkgNFwPWBjQMykmzpHVAcmgvMxPW8z1ckyKm5ECfprq8p/EG8XA+wUtaxuKO1Vrsy16zNDC5gaf4xVS+JBJlUjeNln5ftzhzNCqFwyVIqLnvHW9EaZ0giCI3wZBUK2GFXhDKzHLv56mldFVWxBTUXRin7LFjWpG1yNYkSdQ2bX+NCyT9aWaOTYLGj3GKXLUFmNPESJrNJ/45hsxuKt3ypIYLVRcmIf5k0h3GalTOhOhh1tKPvu9dfltTisJ5z1pCZewzHH2W7gv5sNK16LbE3m8DNCzgMev6JcKNez6t6OSmdXuGRAmg01ErEY6a6P5C5tfQg+32HlZ2cUumQAIxfhvfKGzZ1Ta4Bj27gtMjaF/QRvC28qUkYdWd/uTjDLP6/wvNdWIx2NTdwEpFfOhxUXSyMwzQZ+A3u1yXKyHlEjsbwH5g3yLJweMUofdHqx8cBh69FuvbR15g5sVHXWftqRZBbWMceKq5M6iI9qJ0bnUvrppNUCJl2NnbqeYcbi6lX9xR3sGQp8AQV7H5SAKxmJmu3U0071ZPKPnX5R8xFEnoRA8xyjCQNDzCXcXtCH3hPxGF9Cw3urQ+NNNsQylzgScmL/yVbFPow+bjIC0v1enK5Hj6lSJpqrhd9nT+C7UfpbipPcJFqye+lr8kgI7yGSDepF9Vfq2ZndwOuCkJZ5ykknwFUUSdmqawI6U8GPaEwa9POJGJzWEp8z/4O7KVC1dMXIqKON4GlIYd7M3bdQlsW6vF/Hoi6YPI1qvMo5coW9eqi05IFKzfFcOK2N6iqry1WHzH4uYVkorodtqf/rgWqevlcLZss8e3AzussNI+lCV4PTuMrsz97cE3xQhqDWD8124OCpgJLaD1eU5Kvtzb9yaOgI10s67/DYoAU+2+OenmFJljMowl1mayGjxGmewNro6lI7x7NpQyqy12lqQxAJ+EGUsrf+8KhOSGrpebm9GOR4ryzXZWCoT4UDzPn41Re4pju+UPeCB94I7HINEJkeNXagAAP7ykAAAAAAAAAAAAAAYrxCEEimeIgJEnKyIMy2ME4uKM8vRhBgTH6fb/I9T5SIjnDnLQoQRLWr3idbfG0uZsfpMJPsgfGw4sndEIFCoQmf/pC7cnqO19U0jzJfandtkFAGXjMbPTxrkTUaHqW83ADfozsHvzCVBJpGiJj8ZUJDcIDMuGRVWnBAebmgL4qfP7Uc1z9gpAAAAAAAiLOtbUsnIcEP/mNZXmZsmaKqtVe8BpeQalxUpnjdo+VtMH0wk/E5AabAlezaMRlaZX/rnJijxiBpHT5zA6eBRfm8Z2eY++8CwLpaWt/FgqfvT9A+IJlwXtF7Rbq4MaIoPLwlg7rhf085Uq23e2iz6CVZIFek/GpGuQv+P6abf5nV8fhe7WTy8WdMefWMkSVQhU2LXVNbO5DR5k9MfVG4Wwb44qK5HglmRW3BRsD5ZOdy+98jDkl0SXcL3PIN2oyEHOyHQFP+nJUMs0oZRCnOLKTGT8qR67JP484ncPU/fP0V147QZizdFuXWuw9fDg22XPJitDnmpkso+wt+jihYlks02c/3HKAVG3DQ/pzTDvo6hWkzBIkXYjX3sr82QnqnXpfk9CEOCK2EohDrWAa2DUG+YAQGa7Uuwy4damNVoQKVINgxSljMpcuhVvzVgPx4jnkUkV3y66OsVfrrtuU3bO8Q9iLJFqoxLoCT16/KGB/pREBjqrXPnK7vVz5jDDc6rkMEl6d/+GBs3EaT/5YKoIUL44i3Xzh02fupDD6YNvPgTKRARQgdyJiV/fzllhag/RgAw9WGIMcQEcDEEzTWN+iAvVwQVVZu8JRlf83YcjrzZoiE6gddgbgf2a2zdphUgAA28jehi79oePnuvRyX0HH18L5xQPE9fjF3oDXNLi1K/0rm9yEECvstmc8fhtaxsRKPD5kcWcS7wXEMpQqRwAp/sYW9eZpn+4EHIfVF961CJ4j6tmYUA0MYSgHg+AIQsTR4oCkFzoOjjIHzLwFqssfA7nO6UZWAlcUohe4BDyhVYTXOgmxIGqnSJSrr5O+ho0VZdE3VApGkJwINZK+WOybjAKcUp4IECMwaNjXlN92M2W4rXSuKQjnYsfUEyAqPUZ2oiFMsVAMHVVKEVi7nNMOVTiyzrECRDJ8WXk+B3BBpu7pHeudruOJQS13u53rEfCM+tsKA+deWXHHKtEzNi/HwkCon3KPTzlCyrp9u7QgtfanH9MwrR8CJ3PuQwZTMH8ptTwU3Y13M5961BvMJZ5AltaTducJn68L/wKp8qEPFcbochZn8cWv01f7LRDO6+0+y0FKoVdLuy2NAQpdk+BqZjD+BLX7PTHAqXFk1GLFBH4x751cMhI4yRgySIkJizb18b0JNL82ym6739ZcljooWx9hVHqkUSxFsG2w08HxWGhacUxwkd5CqFvtJUoOBJHj85yFE5V30HeyOWeHXa3tg306rWr1KLwnCM5epHm1rt6KEW5GxZ1iPQz0AIIESwlckh02pffWL8KbM5vdIRawOLtqYj1cequDSReto+dqPhaGOLP8IHJ0kORDxuDD6zlLNpMkEgrBZSL+8IghuTm57gTwc2DdpZOaIv5njZqUUwu5OamtfF2B7ah7+jthY3sY7ryh/Z1rJBbLTfVQ3HNZ5enMuG4G/O0qkVmPN32BoEfA8TQCXKVRk5u0FZ7G1Ch93Yyw2uxcwtyY92V2qRDK8BYSVqAnoP+QSkj+RElM+6HUFbZHR42IZRZlmRAunxE3h6G2ErB7yZuHIN6lz8gtXOz+OOpQwxPAukA9FTlK/424RVlqfiL9FA3toG9iU9TuQV+ljitJv1nAp54TM5fUkl9C6DMHKMV2vBjONtTA/yHm/mSKTG9jKzGKRYoI3H8EyYsirN+eWqcVM/x1HMESLDNZbAonUiy5lAlXT7GjdSLWs0dic2YH3jvDjQuJCqO1/3X0tEwlzeOoA8fuzb5NllaV/l2dd8DvNfR1wlEUbH8Y81IktOqn0DjbJXg+V1k/SA1dhqkyI8lmVFFQKGsUhEGYjKveOcex0p+FZ71To284MqZNwFRuRXOeebKiKgPEDjUZCIO3PbMXVP/63HQaZ8V6um9aKpFi+KTBPsRzeBYSESqinkKwbu3FlFjOkbbjvY9VYlruxACNssNL45v++mLa+F4XZfCSRIfXyG2+bxIRaMik+p8VVliSwCOosZhPx+Qqrze5XhArpITBaNknnINXZk5VJTl7tIpu4wFiQsNrnHS3VU1+5iphiEuHUINqKAkziqRt7GQQRnFmhlTVuNblQo/laa6iWJRSbh4/209EcAa/e9siw34hmSO7UxC1KxmPIf6ZIiRTAm8V7GaYNfxh68IykCnUCZDHY5Q+QbEqopMRYWJtOUHVdboy8jl0UjcSS0djT9/8o1Cs8ozTus+yVLW1R+ZKohktLDkME5AGpRFnpxhbU/yNLD9BnFUi5+ksQFNKZ4oj7DPvX6ZAFFI3K7pJ/68OgecnVe/6Gqh3BjQnejSvw8NsfqQv/SuJ4Xsq4tGdmuiKKQAjTNqSpfkMfRgEbRmeR9cMO9Xx5J9xZKIm7vfVh4AbIZZ+/YissH3yVAyD8cbZXDMWsnHLf0AIotwOB2XwB0HGfAYL5wqPP47zYvIiaT3423VwnW0LxSiGeWg24ptFeM5OQQZDGqVAaRVFreRG54tgLyvBbSOomcC0/7gKWurLG/6FxBPFb+WPPQUwuFFBmebzKkQm7tISW092YXTxVVRPin64FjrWhKICit2Y+ed+UMUUg6h6epDFPRzcxS6VGIakKpe4/Z8vjvKEMwQ5YOONU7NGEY7EiGWJrHQeT8yRAYebvd0UuBSfLWkVD5arHcrHHXvPsDq8tR8cAfsWa/cnkWJLvdwveo8hXuEsTZVKIeW8vzA2EsbXLsV3B9RnwHcJcOoWPM/cxyoffZ3Y4lEa8IYlrpYia4rhxTZLlAIA1c0fcn2/X3oVHbOAkpI7WifqFQhyfzU8Ut/Zzt5EJ3u6KR195qlc/jzLGfWonZ3NodBIfUCNWZFjyzyV7HfVEEvFkPbKov6RdKj2iEjAYVVaad3BQYmsL/xkFH5Fzx8vOBx7NFCDtDbkK5RJESn7CIZpoUPc82eFsdtz2xQD/amG9uT0jjZacyfeg4UvRnUnb3vGV5BOp3KGBuWMdPQQ0flPvTTQBDUXbwVqlrd3/p2zNJDygoqRz3cmDtsqEj5g9FLdPOLcDMjb1TWb3IWtpHKWgz/eB6QaOs1B6w8ujeSQobsf1/WmN2JaHyJuwPKxDKcwXASqSOKEYFaajag516AkM3vqFrsNc+19SmlvxQhRhj6q+JYVeOSm3Wg6zbtkYRUPdrxCtFzXKaZNUVxT15QbeZMkeIZBZe/bjRhUzN29dMM7qYt/D/6vYA3pZhKkhasNgjlKUwXeuXpvtXwcH9GtriyoUIZu16dNYJNccjIWSY/M8FA+KpfVuUshEF5EWkbcML4QJ23pvyWiM/KwfLOeOHUAy/vu92NdnIgVchsQw+nrW8PWVLDundU4kT2nf5BHOE61iQ5uT1dIt7/poswN3ODnPaTgLT94dNQWOE0wGpemOp0DGMCn0ybB5DCokFUmgzhGYUxvKqhNRPT4601gTRjw67rM/3bMObsPcAchy0ui5RiW0wSl1DNJRCy5U4DL4PcaqU+gQtQe9UIBOfTQsHLpiMFbC5X7u0YTUFqw55i4YOPHOjf58570vWoGRGTYm8ktu/ft6u9zhUQCKfw4K2A8HTbtY1iwgF5IX0RNnBDmSgZ2rKFWkrrIvYwnM8IlUfNc9X0NGUjJolazu5UT7K7oW7hrvPv4jODeXjhWcNCniCBpJMf9QHIc6LYEjoFOTB+gwbMHfIQrCslbYTZsgjLdfv+l+YgPVp4LlHjmRHF1LXVr37qbddTBIZ8NHkzqvVwEv3o4eNKvVVdVaNHXjGQUnFyHCcK/mcCUKvB38ym2HbtY2rT4TUR8p1vRay7D8bU5OY/pbl/RZwWBorI10NIEsH3Riha14IMvuFOSantSjv5wBU3D2aWeh05YkN2874XNO5npC7EMg3hWXQfO2/0cdK8YcMO9xpzp7kcbUkzeh3Nea9WQK0lX344upZDXt/v4zvFws16LkcisIneR4v3vYw111GJhPWq3pqqr+LMgvEDPJww/lymFWYxjx8GskeFpm18VDYjpLhiPCz2dWcIwUvyQRkkcXAqK0UnrTDFqL+tRV7YQHxmT84ZEBZ3WFOs1rAXBjcMq9auNkbBsuLctwN06X22Mylz2lT3E4dRAoyfXrAGe04kWa02ydMwBEE9tZq5/hIrSG+yk0zW8ANJDhmEXPgxpNgenegiSweUo3VEuia7JKXQNZsRCS7QJ7qdnwtD9t446JPptkswnfAaGrM+T2X2BB/jxpvWM8TPkfFIWg3wEIEybrHj3i0LfRBS/H7nqirVsUSu3QHkl32bF2Scgfm13al/ut1VPQa6uPDDOWfUJ2uM24BcnlcUNcr7REYd5AqcTbtDK1N0kZV+q+CBXEU1ONMGtvIMCZQwscnd7HiFvuLefMJPqoijVHM9rd1DU7aOn4MrSM4lwQrFPheIrffApZK7EKPJ/CPGm2KMhM+Ttq4ehmgaoQ1gz1e3JMvv6csqZ2mKBfyUILZ2MKX7WJWFRFR0R+T2Q0mBi9b9FayEQ9gQF4eHf6JF5QcGOJZjlZkAPRlsQBw1WfdAkPVD1Uds7Lp1w3BeCWdgQiLXWVqPMsv8n1pnZD/APB92Aa3ExADXYrGk7sUc36o3y+VBiKjG1eM6Apt60zIOQ+NG90bqunUl1lz8kzCE6+ZJ7pAeDwX8BIovoxdE64n8vxGBmQkonKdFc1aTjshmnhMeVSd1MlGh8hBkWrQZPxG3Ony3O5olv55wDMZGkQRZx5wOp67tZmxEfFwUaGmZ7G3T9uyAR2W2eI/CcJjDjwCGSZ1QLr02/D62fHhJQ0pHzX7Qhv5ofKC2zCdDufLlwvd5EEOEpE/+rKE1eOZ6paNgNpSD/sP3k7+oOY4q97Ns9kgkUcGoOjBxh3bHlCSoeq+kNS+j5F/wxVZJAqo8Mgefd58N0j0Y2VOT2duKOyq7YAYy0mIxtCK1M6mhPLAW/3g2uyCrGkEOHZn/gFnaF8+Tn9d2UD9sU5XzMIP0VgNBiH8GJgbwISLb4P6Lm11JlamlxM/7srIWU8Ohztba0Z7SpaaOjF7KaBV26Qoen3KTa7BEaDXv5A+8pjJb/t6655D40LWQ5/5Vh9T4IgK1eJ5zOvfQ6mK9bLz/Cw8vVWa5g7pafhPccoZNm0CnMVYPrJ85cQDGix6ADGlrp/TixGK8bmLvHKVTDXkhuXjvY82n1osOoPwnBaAsPhwIks/PZDH9juXG/kaHgEysZhMUshAKFYqjeqHImOX2M2vBjDW9hv/I7m1Hr4WF/3yuQgxvKKN+1xstxctZisvhMB9X+i+m16d3NOeuvlsaJ3g1XvMqfapNuMc0AnEqaXturRIExT21yY9NDcbbZgyJz0jBYSGf1frkk2UxWYoCBAZwEYWmAkdFOuCKQniHFKvoUFbUqGf2b/roo3krwmPhnWznjP/KVYgVNJf+dY94Kf/ERxdhfI7M5HqJLQJrM/tNr3O8vy5wKJuu6cfU0T/FyfUHAjBmWWU1fhGik1XFetqocx19Fo0//kpyBn73k0eFoAdM1s0hYaaw7z80IYh31Um/RiFQksFzb9U7MG7bzDAyErDIWgvxOFkOE2eYftI/SMfDFGPOhQWqLyZnsRe5v0lRwu4A/sUxddg6V7TKLxRURjHvReGze1CWyUBw3AaEwC/OWTIClh6psA/BAamzFm62jtJjZjyPIo2o6BjHGo9a23QjE+mf1aHO26J7rbPeT8qAf9ZSJfGYOcFBubm0Gg/mMg4vS2lxF8/BV8QmwFao7z0sYSuQsnE39aFmOee6OBtrS2Ocyj+8JtiKWDqYKDkd3XbxU7HTJMQpX+cF+G+gZ5zXQdNvGxMs0eDWIUk88Xm9tuk4HWadrCIMfmrCSz5pFh3KViXvwoG0JNuGpj8VU6RTgHTA1e5OcWuyZ9fgwDEB6ejzO0sSO5TqCsif6Aqfqn9tw65xseHGiPgbHCK2hvFD8AkTiGbLphZVlRsadfyZO4kayzgiVBCpMAeOtYB5bC4pWpLER5Ep/B3F1OUR1Jyk4n5epM1aox3o9WEf9tsjpc3xOSwS/JP4WkqLwZGRqlou9xB0Rd3e2zgNZvDmxcK1wgPb8qvPlMEF/WFPdfb2T4Br0qdOYI33A2f40ZoSr3aaX4qSw0El6y2TXIENyMf5+Aq7Te1XJCLpoXFHmzN66SJ+2SGJEGBpTjJeCDMxXWsZVds72Un2h6GaBFX8j+iVsgBPMDcCcFZtO598IT9gRXV3JaaXjEHbjmXsC0M2qq67UBb/0EDRjBdicFcvkPozIe01mETPhxgbFvxDTcQmK86w2PADvOqSETBgbqjBq+I/bw3GI/ifzK42P/Rhp+QBQQY22QWjN+yc5QeFXI6WwOoWqowkDUj4ER7LI0BSLb6R/DUfqDLBF4WalFQApje5ERwg5UgwuPcpQd6U0ba+aW+8XCeNejuLqFsPborxt/qyysqtczYDwoyyWfJuV4Tg0a46lIzKgEW8+wtOUTirHqLUd0JgD1ex7wh78QLWOynDx/sS50qZsvjjCLAaVCvxd+VRMsg7vkikTb9A1Ab3phwzI19ZUlCeVbvCVSPzCpAlgDRC8CFriv/060qELCLkk0dJUEehCDQ7kwmADvjkpqz4VUQWM4bhlO4f5resoIorS6T2oQnX+QyDeUN/t/29Qa3k4uehLrJcE1rBjgq2Z6PiaHELyXhAGLdkt3lz5ZUoj/y/DKr41AehfheazzVZVowCEXF6m/yN/tWoGRhWknMsqDutoeUg5ZpIkn480Ziayy78VaLPqEtb1n8Cv1lWS5QmnX+4BW6PlkcQpYcH97SSGE0fiR1EcBlm5mfonIWGh2M/Oj9QJ9ifkfiE/29MWPwK25oWKPplw4/xsrMQWcmC9tJGZ2wMdTy1trluNjy0kxd2tOov9+stNPBOxEQ3lD1MuXMLd2ggCjkEVqExSXwl0CwVHmy/gf9fmBzTiqNOl3wrMkJhlE/+h/kES0Y8NfjcdCZ3uuD0JJ327SszJJBCWj7IHRCxXCf8MlFARkOzSQaDHZoqDgkB2DS40wybbaEbfsWx2YG07rSbOLyRyQt/QSoh/EoUDRmZBJB10QQ/gLEomNSw/vf6EwhYtot1tQoxYkS24JpFvPbTuZ1N4OqREaKXKO9jTNYG7qwpKo33T1qJS0DB7o2ZfPFsYvvk6l+cQ+bm+tyD57g0NJnR+HcMelgxgRioCbYeLuOAtH2Cckf6GtLSWMoYpZB4LGo9JcW2PvCQS7uZGx2C2+4SxznBD+zNZfeZC8ZzGqvGOGNAhS0eEByv72nTJH4Vmgr0+Lmgt+HgaU25jRjrGCHy4oXiAutk1B1urimuYtpSMI/FOdiVOIiKwqg6X/wunUhzmsv5TaOiM5OhlQkI8hLp8ku9VBNXOgqTHWOInADMF7WQPxJbBQSfkAZYNji5b3QZ3E6gltqYSOoHzV4+D6Q9RKmO458BQOoBEX002/4hd+za+msmspqfrcpi11j2iZFSSOobQWfCckDPnzWfpRYDzd1RdBPn51aFFF5i2mpmdEBPD073+D8QVoHcVWJFaPoNYK8ur8h1ax3eK13ifyoujcW/bxKl8pvb3ma1aXPiaRGG0a7uidIZQVh0bTKFAKJD7QBt0sP4Bf4E7tc2+wWIBFSxY9wI78CaJbHAlkI9KHfdSV9pX1eJQk0S6SDzCbKPhsAnxbbEqQi9BjIB9BKsVtRffTnsx8a5dB38mkaLoeMlDyQnnH4/oAtitfO+RBnjfrrplo49XVV7d3AtJkRrCUkATwJGuNaRAA3OINdOPXOsmzerAkkFPaeEQIbogw8eaUDL4oeUXoquQWakTclEa0eYuqPy4D6OCgTP40CkdGQw4lJ9JnXjBkFeptDXxl+bXRIzoL+9UAo3AinQZ5U8XJEhWHCPBMdSzbN/zbstfNmUthq6v5vjOI3H5n+k1EdQfDp6M99oDU7NTwdIphvk1A2EshZfE68CogzBu+W/zQM+lbp8PF862U6lItMfubvoXHq+Pu9HsPaTLPhGNTAD/f+0fwMKZ9gIBKx1U4ZPjr1TrHnMhXS1VnjedwAvn6Cdy+ySdNm9t/bd1uy2HdmHAYxQOKVpwy1l9lKXEkKGwX2AMpF9f1u1SfztoWkeA9B5JVcCja5NsyMMMPVRgzs1wRaCm/2CHUxluLMzo4tlSgkZsM3Ki8iGTwIeCrWBw7nQwRSj7KF5AXV1jEOuY3Ba/WR2NMWzGTQzf+x1PeX/2n6k29bQD57AUyZWUj5lmLSgTVCGTIUmNcra8tGZBAbgPwxei0NEDmv9oumughVLvHpvWgFwoRJ2BJ/CksTyu54brgl/kMYn+kDjEjr8Ed8Gc3kngCpEwWy3zIi25emdJaSUgWCn9xQYLWJEuk5ldOclpfZH/TfWwOaOs0njduZADTzw9fi2UNwc82EzCRnkmkmEUV0wQYeiu0mmv9mXE5g9JhC4qnrDA8IGKjgmZPetTvueAMyIAhoAAW3SZT8gSuwD5HTbSRFERnZTYyIjvsf6HXyO5jsuzs9BWNR7vvyl9u4kA7eorsQmZauyXjb/FTzC8xyZYzUhELavrzcrTsjqx2S7j5Wv3ADnY1BNpPyMcRmYgNfQjOJEGYvgO1SEWMxbS34if8bzab5cOyHFNXoF5QwfznFj+1+M79FbDigPBZF3AcZfxe7agjKdKs+su5julgnLw/iI8woVpYI8oixqSgU0iGcLkWWq4MbUHyaqLJ6zBwi8f/9uptXsdG08t2VW8PxQBTgCi8rtxQiVXlgJKPNq1JOHA2AZeu4M3dQb0YirhlzinkUpf3axUWTcHTD8wdhvciO+dr1GXnosDq4Ps1SRlPyjDbnZQQRvN9AWQN4EBYgNfBirG4zGLj2tk7DDZoSqVoGoK/6CZBqETQjBX4iUN4s4Rj0qBJzVG+6RTXNUyGoL0nXUu0/YO0ymjj+2N8W43FmObKldWA/MH+/80+UfoZRHTu+n/vqNiLGX025jgUAbyar9n5E+lf2QDYQe+EkT4rFvJwf6asQAWm6csZ18x+a9/c4PK8PEhU5Ly5ZFK7QMVTdsXDlM7K96UGco8Vr51DbbuYl2L05vUx1lgKoYGtV8bpEiItEsgtoOkuuIh8eANJxiZwyy9jurAnnqIV4+u10VaAlwsAj7mU+DdS6huvKVoILy3c8+ML6RoKd/TJEGXqDlW5xYGNFY6fj8m1N/yQvmabFc3o0CDQZDynfkdrtc+vwid2FK2Oc3D7VWUrcZkYX2EzmSDxEeiHRhpln0B2FxWgYJ40QIR3h5SPFiKZBzqLrM+kwb562s/14k/b7P9HpX1P+8BrAP5vKV/VPusllFjjumhmW6ajlkwWd3YCL2ZvVUIU62qOkefR0CJApusEyEuj4GNT5OLGbzRXlDBvq2cgk+5FHpTwmXUAkH5PtTDt7FGgPcAZ/8JZFexCEAougOj7nYE/6sh2IBzzXh2+Gxv2h06DNC2fa/xVwVuoaTaRAFsgCyZKokna2bIi7kI2SMoQ4mTvtyUxoNTD0fxMv1acDhdAilrivZc3T+AtpBrOeFQ9/G8+jdMSe6bBFJ5CRhGP5pJkf7kjoyR8cFHaCPPnufZwO9GBCPO8EI0/dz+S8EKQaTgoIRiO64XlcOINsi6XTHHF+TaMQoF4D1zKcozlS2F9Aa/bLZWrFOY/6EDRWnf0KCV2P+KtWBMk7ethqPV/nZJXxkDAqoBeruJfxSwQ9yfIoXD5xIt+jLf1Wma3kKkZkn1tdMlr756rHd+o1hKIHIU34VQ5rRNyyUCUSSD2crz732xXZeH4J/m+/OtY73NpKncfg4rc5J3QW2OfWxiPzW9TozYhL+lavi4xlLwKsV22pUEwQ1IIt0wQeuB6BnfLjS69xJn/Vu0QxJvPED/e42KJKsBDyBm5kkY7TrnV7sZ8UxE0BC8CtZ+IYDz9XPmJMyW12ZOGDvKRePwkJZGnzzz7qJL0/U7VEGfhVGDnEJ/QDgkgOBxru/lS5qOW4JRu/+Oj+LGLAdQLwxJcs7aoHG5KKMRs9iIhH784BhLpnAyZPMAv3k5K1CT/tdcvDLjAz7ZmLt4xtt0PH8m1v2FW0nOeY+zjAFuDL3oXbTF4CDJMr7u3poFrdxHO7pdu6DC40z+BY7xyLLBzXjh832LgCwIpMFIN5jI7u7NIq+N4xy7ItReEfVsZRoxYqPAot+1sZ8kNb/wfmxAqh/0YTOX2bFcry8M0be0O56glYudxXANiaQJIMoLagFvLvhcOHdvFAOWQq8US7vy9ZR8ZKnR4gPwkFVMEDM9lfSftUG5kah5WFeSlM4xGznzXFa3iUSRyHinsaUHrnnZOG1MdOeLcp4/Yn2WfK4qhX4tfGqxcoARQmsjNUendrhGD8oOFtzZtH8whofww9fe1TO6hVjYAzJuIFL4vYUd9wLQU8sMEG65rYf9LjlG8B/E8lh31VmGj+Ejj/JchE7tXfFMP5vgjDuTf/M/uZmAHXN1OritGi8qPY3PVnxVEh/GCUj7wXpoQ73wIvviQ4P266NN37laJf1BFs0h9kIXGxaWLYd65C5+VjKbo5hwbjpBHsPBPmkKsfDEG3cuPVPV2hmgFRgUjuZ2M+py6NOiA6YCGsyQfMnfyZKEdTngYGUw2YMGOSLLBKZ5FWqTu0DuDnF3+iqFW/56gi5IrAafrd1Z0iRgNfY/rhpV/zutIMQhHyXkYXCggSODUMetM5OGwVmMJvhuENdpmDgRenTp7bQQ/BaDsm6U2aOlLh5/ewkEDjQmLx+Y7koGgtL5qxMmQpaIwsCkN1vcXVj2I9Iag4kP6kb9S/8jg0JzNZyXtvx0JuougnNCawICHVZZdF1jC/Aj0lmPUkfGx/9UNJcEsAJsBRHe5rX6CNbTUZQMa2PSBz6Hfr81xGdUJCVNuNM5trrdqvDTnle0Libqxpn1tiNYAZjloaZio4dHZcUTFZsJ4aRaEBT2Rnhhye4Vlt/uSrgetGGGU1H1buwJux53CsHqVm1Y5rZQ2rjITRNjIxEuwoqN5+erq1s9XPwy0x7TgukavUER9NmL1QIdGpyRoY5PLj3f5AnqmjUmuNikn5rfaEtC+9zkAQJzy5gnnGZcLlst5Gr8sNZIHX5QqTP7c7LliSmjnIBPniT2zdkF5r4viLCiP/Qed8NVIDYj2t5P5ahiwjWMHizCyEnEdh8IFpVa+YBZ3MKjf8zbkl3bcDEfwFJK/6B//mg+mZKNj8XHtbbQrEmnDig39ji74Bgg/QkfCvImtIRr+UABF1TV1pUDL7kp8b6HvYXF9gyX8ra8idGIlgG7/edp4oX8F4AYQ3IwgsJW9m56WeSAT1nsRQ/dG/5LTQ9RDtpkiTUvTkvkrn8duRAf7KC8hlx23DhI57q0wUZ4+H3X2KYd2Fpv0C3WUdHmjFfJTZdsMrhnaI4rJx+de1gMa4pB5a7XbpS9CoLmVLqINRiBwORIMy4AjO6usYX57G7dyzWoFyOJJSfS0LQ+MbVoDlaQuoIvbJOb5HowZb3yIbj7gLdLqZ+zO4QRjagqgRNNFJwU2IffYhASOtg8VLKZe4SLFu4rkivu3mdkeC10KpvJQ2URID7jj0l3hCYFiKqGiOQwrrSY5S8/kYkCsY1gdg/tYP+EGS6n3nT4FYYIiYcwMrj7yNBhP6/zc6euQKwq7u7PGKYLSO+Es7Z64nuMLBUoauhFuVs3jnK+l0/m9ZoFjf50Bu9IK2/2Zb4agdZQ1Yjf/QU01UI151Ohqm38awcCS7Tcf381sZam31aIeR7z7R7VN8V/i2o6FN+I3Yk30fMktEUA60A1RBTTkwC7ZTrA+ZT5S+Jhpj9d9AjAsukrV668xTZDHelFGcThFWOp+d6YNSRDxyS3XDgP6VmW26O55odLvf8Tlj4g53Ka9jgr5q6cJVHzcPjyWY/qnpioTiIAznwXCB384WJdF/Rjd2VV6AqL5QzSfXumaT5yjOs58bCGZsVFLlkIdlhrbu0CEddovN+UUvB8TjR4mXhOiNxHp1zDxx0pNVj27z5mDGG6D1V0ISNqjhTnGmHL8ik5Sb3AbiEsfc5EVJ6z934wMdGKpB3EgsqVy+1v9v6bYy6shvfCxE1fKAXdlhkTbKUITeB7RiuXLtT6YNKbuS91UnGT8c8HXXVEt6WA+VA5HalVXnvaSNwhu5FrmaE72fk1EjK2B7qfTesCWVWF0sq0VmbdgFkSA6HCodyJ7nKLrHE6sZ9FqWj7TyGYmkf5rE1N9ICwK5svJ0DhoVYZFtx3MBf12t4JC5QsdQNsOSutO7BpI7U/FKWLnQqqciKr5pHW/bi8g+q0Z1CfnLPit5d/yxyvCnaqHTHWXWbTKDGR/7Xjg+AA4+H3UTZnhk2itBOJ21pS82eE0D37M081PO3tkdCfyQEhWAs0hqSpvJKclfEaMCLuVAwV94miGnLGgxsxFw7Nqpy6tf8Zww9mkpO/C1o7VjWIX9370M9Dzgpcg8Ryi5lISMAeHJToJIaoMJqh8SFvkWpf0fB1i31xdMpcl54HxUOnYIK0Bn61F6PmVkYPc+zeg/9uP03sMDNhYxJ5sSPECPQWaaydWAEWsr1ZgAP2h/e5L0NsRR+wDYDZ1Wug+jBTRdIt8KKJG9bcSFAwFnRLfnGSXgDaSlaXRiebTA062zijOwycnMBEg6nxuHZ6H2DOSyZli+rFln4yYmqs3eBvgd4sgwTi3b2FA9L/WZIsYAiR+yBoXKMpXR2kfwODn6qYzRq6UamF4YTekpuYSBet5PKGj7w8xqwou+XTC7XQxVRRuY2Fnd+ZYggiW5Fonq9px7OEWTeijbncSslffYxShKVvto1zPxCW+43/+w+c2I1c42qkABdkvkzVq0xSosH6DwnLFZzFsCeAyuycSfNhNdxii01wbwSYlNl9P/O9Z/4a7FjOY/GRcMy2Hszezwrj0gDHkJfkE2dC9RzWUTzifS+jl/y/TEkplOkP3vcmdfd3qLOFPWa5FBLl8NFbTlgN3nHQ1K41Ryaj/4UuY3SRTSL+YLL9BcbBfkWoaydDU/ds9o7BWo6/HBf6zqkxgHVlvWXyi717bnzukHH7IDgNfGMNvkU8Q2OFwSAdr406McrcEhTQ5QKGnl2HL/TsXESmSm2WiQkv4qOgRs1+Q8/uUTZcKfOYoB4XNTr/n5/a+ucrLEAfoBVQolYjPlm5B2N+F1zKNMhXXmIeTV+SBXeIm4xFAtOaw2b3UCqUOUIf7rEamSJcGDRUtrCWLOVw4WJTEXsFrUxRvKiONsp6NErvlBorGEGlkA0tVgbGz+NoLPTBXMDpwZi8yXu0itxzxXEz81sNapnypShOeXqV/KLbPOV96JcZGKFNtUdhQssGZCwvAAAA==" alt=""><b>Wunny</b></span></div></header>
-  <main class="wrap gate-wrap"><div class="gate-card" id="gCard"><div id="gIn" aria-live="polite"></div></div></main>
-</section>
+<section id="admin" class="view" hidden></section>
 
 <section id="home" class="view"></section>
 
@@ -449,13 +469,17 @@ dialog[open]{animation:rise .25s ease both}
   <div class="row" style="justify-content:center"><button class="ghost" type="button" id="quitYes">Leave</button><button class="btn" type="button" data-close>Keep learning</button></div>
 </div></dialog>
 
+<dialog id="authDlg" aria-labelledby="authTitle"><div class="gate-card" id="gCard"><div id="gIn"></div></div></dialog>
+<dialog id="learnerDlg" aria-labelledby="lrnTitle"><div class="dlg" id="lrnIn"></div></dialog>
+<div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+
 <script>
 /* ---------- Accounts ----------
-   To turn on sign-up, paste your Supabase project URL and anon (publishable) key below.
-   Leave them blank and the app runs without accounts. */
-const SUPABASE_URL = "";
-const SUPABASE_KEY = "";
-const AUTH = {on:false, sb:null, user:null, profile:null, email:"", draft:{}, step:null};
+   Accounts live on the site's own server (Netlify Functions at /api).
+   Where /api isn't available (a preview or a copy opened as a file) the app runs without accounts. */
+const API = "/api";
+const TOKEN_KEY = "wunny.session.v1";
+const AUTH = {on:false, token:null, profile:null};
 
 /* ---------- Course content ---------- */
 // Each word: [characters, jyutping, English, example, example jyutping, example English]
@@ -600,6 +624,7 @@ const IC = {
   check:'<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>',
   x:'<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11"/></svg>',
   lock:'<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="5" y="10.5" width="14" height="10" rx="3"/><path d="M8.5 10.5V8a3.5 3.5 0 0 1 7 0v2.5"/></svg>',
+  people:'<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="9" cy="8" r="3.2"/><path d="M3.5 19a5.5 5.5 0 0 1 11 0"/><circle cx="17" cy="9" r="2.5"/><path d="M15.5 14.2A4.5 4.5 0 0 1 21 18.5"/></svg>',
   gear:'<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3.2"/><path d="M12 2.8v2.4M12 18.8v2.4M21.2 12h-2.4M5.2 12H2.8M18.5 5.5l-1.7 1.7M7.2 16.8l-1.7 1.7M18.5 18.5l-1.7-1.7M7.2 7.2L5.5 5.5" stroke-linecap="round"/></svg>',
   flame:(id,cls="")=>`<svg class="flame ${cls}" viewBox="0 0 24 24" aria-hidden="true"><defs><linearGradient id="${id}" x1="0" y1="1" x2="0.6" y2="0"><stop offset="0" stop-color="#1673f0"/><stop offset=".6" stop-color="#3aa7ff"/><stop offset="1" stop-color="#3fd0dc"/></linearGradient></defs><path fill="url(#${id})" d="M12.6 2.2c.4 3 2.6 4.6 4.1 6.6a7.2 7.2 0 0 1 1.5 5.6A6.4 6.4 0 0 1 12 21a6.6 6.6 0 0 1-6.5-6.6c0-2.6 1.3-4.5 3-5.9.1 1.6.8 2.9 2 3.6-.2-3.4.7-6.6 2.1-9.9z"/><path fill="#fff" opacity=".75" d="M12 21a3.2 3.2 0 0 1-3.2-3.2c0-1.7 1.3-2.8 2.2-4 .3 1 1 1.7 1.8 2 .3-1 .2-2 .1-3 1.4 1.3 2.3 2.7 2.3 4.4A3.2 3.2 0 0 1 12 21z"/></svg>`
 };
@@ -805,7 +830,8 @@ function renderHome(){
     <a class="brand" href="#" aria-label="Wunny home"><img src="${ART.logo}" alt=""><b>Wunny</b></a>
     <span class="chip" title="Day streak">${IC.flame("fg1", ls?"":"cold")}<span>${ls}</span><span class="sr">day streak</span></span>
     <span class="chip"><small>XP</small>${S.xp||0}</span>
-    ${AUTH.profile ? `<button class="chip acct" type="button" id="acctChip" aria-label="Account settings">@${esc(AUTH.profile.username)}</button>` : ""}
+    ${AUTH.profile ? `<button class="chip acct" type="button" id="acctChip" aria-label="Account settings">${esc(AUTH.profile.username)}</button>` : ""}
+    ${AUTH.profile && AUTH.profile.admin ? `<button class="icon-btn" type="button" id="openAdmin" aria-label="Learners" title="Learners">${IC.people}</button>` : ""}
     <button class="icon-btn" type="button" id="openSet" aria-label="Settings">${IC.gear}</button>
   </div></header>
   <main class="wrap home">
@@ -1087,7 +1113,7 @@ function finish(){
 
 /* ---------- Views & events ---------- */
 function show(v){
-  ["gate","home","lesson","done"].forEach(id=>{ $("#"+id).hidden = id!==v; });
+  ["home","lesson","done","admin"].forEach(id=>{ $("#"+id).hidden = id!==v; });
   if(v==="home") renderHome();
   window.scrollTo(0,0);
 }
@@ -1107,23 +1133,27 @@ document.addEventListener("click", e=>{
   if(t.closest("a.brand")){ e.preventDefault(); return show("home"); }
   if(t.closest("#openSet") || t.closest("#acctChip")) return openSettings();
   if(t.closest("#logout")) return logout();
-  const g = t.closest("[data-g]"); if(g) return gateAction(g.dataset.g, g);
+  const au = t.closest("[data-auth]"); if(au) return openAuth(au.dataset.auth);
+  if(t.closest("#openAdmin") || t.closest("#adminRefresh")) return openAdmin();
+  if(t.closest("#adminBack")) return show("home");
+  const ln = t.closest("[data-learner]"); if(ln) return openLearner(ln.dataset.learner);
   if(t.closest("#testVoice")) return speak("你好，我係浣熊！", false);
   if(t.closest("#resetAsk")){
-    $("#resetArea").innerHTML = `<span class="vstat" style="margin-right:auto">This clears your streak and lessons on this device.</span>
+    $("#resetArea").innerHTML = `<span class="vstat" style="margin-right:auto">This clears your streak and lessons ${AUTH.profile ? "on your account" : "on this device"}.</span>
       <button class="ghost mini" type="button" id="resetNo">Cancel</button><button class="ghost mini danger" type="button" id="resetYes">Reset</button>`;
     return;
   }
   if(t.closest("#resetNo")){ $("#resetArea").innerHTML = `<button class="ghost mini danger" type="button" id="resetAsk">Reset progress</button>`; return; }
   if(t.closest("#resetYes")){ S = JSON.parse(JSON.stringify(DEF)); save(); $("#setDlg").close(); show("home"); return; }
 });
-document.querySelectorAll("dialog").forEach(d=>d.addEventListener("click", e=>{ if(e.target===d) d.close(); }));
+document.querySelectorAll("dialog").forEach(d=>d.addEventListener("click", e=>{ if(e.target===d && d.id!=="authDlg") d.close(); }));
+$("#authDlg").addEventListener("cancel", e=>e.preventDefault());
 
 function openSettings(){
   $("#setAuto").checked = S.set.auto; $("#setSlow").checked = S.set.slow; $("#setSfx").checked = S.set.sfx;
   $("#resetArea").innerHTML = `<button class="ghost mini danger" type="button" id="resetAsk">Reset progress</button>`;
   const ar = $("#acctRow"); ar.hidden = !AUTH.profile;
-  if(AUTH.profile) $("#acctTxt").textContent = `Signed in as @${AUTH.profile.username} (${AUTH.profile.email})`;
+  if(AUTH.profile) $("#acctTxt").textContent = `Signed in as ${AUTH.profile.username}${AUTH.profile.admin ? " (admin)" : ""}. Your progress saves to your account.`;
   renderVoiceBits(); $("#setDlg").showModal();
 }
 [["setAuto","auto"],["setSlow","slow"],["setSfx","sfx"]].forEach(([id,k])=>$("#"+id).addEventListener("change", e=>{ S.set[k] = e.target.checked; save(); }));
@@ -1141,150 +1171,122 @@ document.addEventListener("keydown", e=>{
 window.addEventListener("hashchange", ()=>{ if(!$("#home").hidden) renderHome(); });
 
 /* ---------- Sign-up and log-in ---------- */
-const SB_LIB = "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js";
-const GSTEPS = ["email","code","name","dob","username"];
-const GLABEL = {email:"Your email", code:"Check your inbox", name:"Your name", dob:"Your birthday", username:"Pick a username"};
-const BACK = {dob:"name", username:"dob"};
-function loadScript(src){ return new Promise((res,rej)=>{ const sc = document.createElement("script"); sc.src = src; sc.onload = res; sc.onerror = rej; document.head.appendChild(sc); }); }
-const gErr = t => { const el = $("#gErr"); if(el) el.textContent = t; };
-const gNote = t => { const el = $("#gNote"); if(el) el.textContent = t; };
-function setUstat(cls, t){ const el = $("#uStat"); if(el){ el.className = "ustat " + cls; el.textContent = t; } }
-function ageOf(v){
-  const [y,m,d] = v.split("-").map(Number); if(!y || !m || !d) return null;
-  const t = new Date(); let a = t.getFullYear() - y;
-  if(t.getMonth()+1 < m || (t.getMonth()+1 === m && t.getDate() < d)) a--;
-  return a;
+const lsGet = k => { try{ return localStorage.getItem(k); }catch(e){ return null; } };
+const lsSet = (k,v) => { try{ v==null ? localStorage.removeItem(k) : localStorage.setItem(k,v); }catch(e){} };
+
+async function api(path, {method="GET", body}={}){
+  const ctl = new AbortController(), timer = setTimeout(()=>ctl.abort(), 12000);
+  try{
+    const r = await fetch(API + path, {method, signal:ctl.signal,
+      headers:{"Content-Type":"application/json", ...(AUTH.token ? {Authorization:"Bearer " + AUTH.token} : {})},
+      body: body ? JSON.stringify(body) : undefined});
+    let data = {}; try{ data = await r.json(); }catch(e){}
+    if(!r.ok){ const err = new Error(data.error || "Something went wrong. Try again."); err.status = r.status; throw err; }
+    return data;
+  }catch(e){
+    if(e.status) throw e;
+    const err = new Error("Wunny couldn't connect. Check your internet and try again."); err.status = 0; throw err;
+  }finally{ clearTimeout(timer); }
 }
 
-function gateStep(step){
-  AUTH.step = step;
-  const i = GSTEPS.indexOf(step), d = AUTH.draft;
-  const head = i < 0 ? "" : `<div class="gtop"><span>Step ${i+1} of ${GSTEPS.length} · ${GLABEL[step]}</span>${BACK[step] ? `<button class="linkish" type="button" data-g="back">Back</button>` : ""}</div>
-    <div class="gsteps" aria-hidden="true">${GSTEPS.map((_,k)=>`<i class="${k<=i?"on":""}"></i>`).join("")}</div>`;
-  const tail = `<p class="gerr" id="gErr" role="alert"></p>`;
-  let h = "";
-  if(step==="loading") h = `<p class="lead" style="text-align:center">Getting Wunny ready…</p>`;
-  else if(step==="email") h = `${head}<span class="pill"><span class="dot"></span>Ten minutes of Cantonese a day</span>
-    <h1>Learn Cantonese with <span class="g">Wunny</span></h1>
-    <p class="lead">Enter your email to sign up or log in. We'll send you a code.</p>
-    <form class="gform" data-step="email" novalidate>
-      <div class="field"><label for="gEmail">Email</label><input class="inp" id="gEmail" type="email" autocomplete="email" inputmode="email" placeholder="you@example.com" value="${esc(AUTH.email)}"></div>
-      ${tail}<button class="btn shine" type="submit">Continue</button></form>`;
-  else if(step==="code") h = `${head}<h1>Check your <span class="g">inbox</span></h1>
-    <p class="lead">We sent a code to <b>${esc(AUTH.email)}</b>. Enter it below.</p>
-    <form class="gform" data-step="code" novalidate>
-      <div class="field"><label for="gCode">Code</label><input class="inp code" id="gCode" inputmode="numeric" autocomplete="one-time-code" maxlength="8" placeholder="000000"></div>
-      ${tail}<p class="gnote" id="gNote" role="status"></p><button class="btn" type="submit">Verify</button></form>
-    <div class="glinks"><button class="linkish" type="button" data-g="resend">Send a new code</button><button class="linkish" type="button" data-g="change">Use a different email</button></div>`;
-  else if(step==="name") h = `${head}<h1>Nice to meet you!</h1>
-    <p class="lead">What should Wunny call you?</p>
-    <form class="gform" data-step="name" novalidate>
-      <div class="grow"><div class="field"><label for="gFirst">First name</label><input class="inp" id="gFirst" autocomplete="given-name" maxlength="60" value="${esc(d.first||"")}"></div>
-      <div class="field"><label for="gLast">Last name</label><input class="inp" id="gLast" autocomplete="family-name" maxlength="60" value="${esc(d.last||"")}"></div></div>
-      ${tail}<button class="btn" type="submit">Continue</button></form>`;
-  else if(step==="dob") h = `${head}<h1>When's your <span class="g">birthday</span>?</h1>
-    <form class="gform" data-step="dob" novalidate>
-      <div class="field"><label for="gDob">Date of birth</label><input class="inp" id="gDob" type="date" autocomplete="bday" max="${today()}" value="${esc(d.dob||"")}"><small>You need to be 13 or older to make an account.</small></div>
-      ${tail}<button class="btn" type="submit">Continue</button></form>`;
-  else if(step==="username") h = `${head}<h1>Create your <span class="g">username</span></h1>
-    <p class="lead">This is how you'll show up in Wunny.</p>
-    <form class="gform" data-step="username" novalidate>
-      <div class="field"><label for="gUser">Username</label><div class="at"><span aria-hidden="true">@</span><input class="inp" id="gUser" autocomplete="username" autocapitalize="none" spellcheck="false" maxlength="20" aria-describedby="uStat uRule" value="${esc(d.user||"")}"></div>
-      <small id="uRule">3 to 20 characters: letters, numbers and underscores.</small></div>
-      <p class="ustat" id="uStat" aria-live="polite"></p>
-      ${tail}<button class="btn" type="submit">Create my account</button></form>`;
-  else if(step==="welcome"){
-    const p = AUTH.profile;
-    h = `<div class="welcome" style="display:flex;flex-direction:column;gap:14px"><img class="gw-art float" src="${ART.hug}" alt="Wunny with open arms">
-      <h1>Welcome, <span class="g">${esc(p.first_name)}</span>!</h1>
-      <p class="lead">You're all set, <b>@${esc(p.username)}</b>. We've sent a welcome email to <b>${esc(p.email)}</b>.</p>
-      <button class="btn shine" type="button" data-g="enter">Start learning</button></div>`;
+let toastT = 0;
+function toast(msg){
+  const el = $("#toast"); el.textContent = msg; el.hidden = false;
+  el.style.animation = "none"; void el.offsetWidth; el.style.animation = "";
+  clearTimeout(toastT); toastT = setTimeout(()=>{ el.hidden = true; }, 2800);
+}
+
+function authHTML(mode, msg){
+  const tabs = `<div class="tabs" role="tablist" aria-label="Sign up or log in">
+    <button type="button" role="tab" aria-selected="${mode==="signup"}" data-auth="signup">Sign up</button>
+    <button type="button" role="tab" aria-selected="${mode==="login"}" data-auth="login">Log in</button></div>`;
+  const pw = `<label class="showpw"><input type="checkbox" data-showpw> Show password</label>`;
+  if(mode==="signup") return `<span class="pill"><span class="dot"></span>Ten minutes of Cantonese a day</span>
+    <h2 id="authTitle">Join <span class="g">Wunny</span></h2>
+    <p class="lead">Make an account to save your streak and lessons on any device.</p>${tabs}
+    <form class="gform" id="signupForm" novalidate>
+      <div class="field"><label for="suUser">Username</label>
+        <p class="rule" id="suRule">Type your <b>first name and last name</b> as one word, all lowercase. No spaces, numbers or symbols. Vinci Lo would type <b>vincilo</b>.</p>
+        <input class="inp" id="suUser" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" maxlength="32" placeholder="firstnamelastname" aria-describedby="suRule uStat">
+        <p class="ustat" id="uStat" aria-live="polite"></p></div>
+      <div class="field"><label for="suPass">Password</label>
+        <input class="inp" id="suPass" type="password" autocomplete="new-password" aria-describedby="suPassHint"><small id="suPassHint">At least 8 characters.</small></div>
+      <div class="field"><label for="suPass2">Type your password again</label>
+        <input class="inp" id="suPass2" type="password" autocomplete="new-password"></div>
+      ${pw}
+      <p class="gerr" id="gErr" role="alert">${esc(msg)}</p>
+      <button class="btn shine" type="submit">Create my account</button>
+      <p class="fine">Your progress saves to your account. The Wunny team can see learners' progress.</p>
+    </form>`;
+  return `<span class="pill"><span class="dot"></span>Welcome back</span>
+    <h2 id="authTitle">Log in to <span class="g">Wunny</span></h2>
+    <p class="lead">Pick up right where you left off.</p>${tabs}
+    <form class="gform" id="loginForm" novalidate>
+      <div class="field"><label for="liUser">Username</label>
+        <input class="inp" id="liUser" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" maxlength="32" placeholder="firstnamelastname"></div>
+      <div class="field"><label for="liPass">Password</label>
+        <input class="inp" id="liPass" type="password" autocomplete="current-password"></div>
+      ${pw}
+      <p class="gerr" id="gErr" role="alert">${esc(msg)}</p>
+      <button class="btn shine" type="submit">Log in</button>
+      <p class="fine">Forgot your password? Ask the Wunny team to reset it for you.</p>
+    </form>`;
+}
+
+function openAuth(mode="signup", msg=""){
+  const d = $("#authDlg");
+  $("#gIn").innerHTML = authHTML(mode, msg);
+  if(!d.open){
+    d.showModal();
+    const card = $("#gCard"), old = card.querySelector(".peek"); if(old) old.remove();
+    card.insertAdjacentHTML("afterbegin", peekHTML()); armPeek(card.querySelector(".peek"));
   }
-  $("#gIn").innerHTML = h;
-  const pk = $("#gCard .peek");
-  if(pk) pk.classList.toggle("out", step==="welcome");
-  const f = $("#gIn input"); if(f) f.focus({preventScroll:true});
+  const f = $("#gIn input.inp"); if(f) f.focus({preventScroll:true});
 }
+const gErr = t => { const el = $("#gErr"); if(el) el.textContent = t; };
 
-async function gateSubmit(step, f){
-  const btn = f.querySelector('button[type="submit"]'), label = btn.textContent;
+async function submitAuth(form){
+  const btn = form.querySelector('button[type="submit"]'), label = btn.textContent;
   const busy = (on, txt) => { btn.disabled = on; btn.textContent = on ? txt : label; };
   gErr("");
-  try{
-    if(step==="email"){
-      const email = $("#gEmail").value.trim().toLowerCase();
-      if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return gErr("Enter a valid email address, like name@example.com.");
-      busy(true, "Sending your code…");
-      const {error} = await AUTH.sb.auth.signInWithOtp({email, options:{shouldCreateUser:true}});
-      busy(false);
-      if(error) return gErr(error.message || "We couldn't send a code. Try again in a minute.");
-      AUTH.email = email; gateStep("code");
-    }
-    else if(step==="code"){
-      const token = $("#gCode").value.replace(/\D/g,"");
-      if(token.length < 6) return gErr("Enter the code from your email.");
-      busy(true, "Checking…");
-      const {data, error} = await AUTH.sb.auth.verifyOtp({email:AUTH.email, token, type:"email"});
-      busy(false);
-      if(error) return gErr("That code didn't work. Check it, or send a new one.");
-      AUTH.user = data.user || (data.session && data.session.user);
-      await afterSignIn();
-    }
-    else if(step==="name"){
-      const first = $("#gFirst").value.trim(), last = $("#gLast").value.trim();
-      if(!first || !last) return gErr("Enter your first and last name.");
-      AUTH.draft.first = first; AUTH.draft.last = last; gateStep("dob");
-    }
-    else if(step==="dob"){
-      const v = $("#gDob").value, age = v ? ageOf(v) : null;
-      if(age === null || age > 120 || age < 0) return gErr("Enter your date of birth.");
-      if(age < 13) return gErr("You need to be 13 or older to make an account.");
-      AUTH.draft.dob = v; gateStep("username");
-    }
-    else if(step==="username"){
-      const u = $("#gUser").value.trim().toLowerCase(); AUTH.draft.user = u;
-      if(!/^[a-z0-9_]{3,20}$/.test(u)) return gErr("Use 3 to 20 letters, numbers or underscores.");
-      busy(true, "Creating your account…");
-      const {data, error} = await AUTH.sb.from("profiles").insert({
-        id:AUTH.user.id, email:AUTH.user.email, first_name:AUTH.draft.first, last_name:AUTH.draft.last,
-        date_of_birth:AUTH.draft.dob, username:u, progress:S }).select().single();
-      busy(false);
-      if(error){
-        if(error.code==="23505" && /username/i.test(error.message||"")){ setUstat("no", `@${u} is taken. Try another.`); return; }
-        if(error.code==="23505") return afterSignIn();
-        return gErr("We couldn't create your account. Please try again.");
-      }
-      AUTH.profile = data; gateStep("welcome"); sfxWin(); confetti();
-    }
-  }catch(e){ busy(false); gErr("Something went wrong. Check your connection and try again."); }
-}
-
-async function gateAction(a, el){
-  if(a==="back") return gateStep(BACK[AUTH.step] || "name");
-  if(a==="change") return gateStep("email");
-  if(a==="enter") return show("home");
-  if(a==="resend"){
-    gErr(""); gNote(""); el.disabled = true;
-    const {error} = await AUTH.sb.auth.signInWithOtp({email:AUTH.email, options:{shouldCreateUser:true}});
-    el.disabled = false;
-    return error ? gErr(error.message || "Please wait a minute before asking for another code.") : gNote("New code sent. Check your inbox.");
+  if(form.id==="signupForm"){
+    const u = $("#suUser").value.trim(), p = $("#suPass").value, p2 = $("#suPass2").value;
+    if(!u) return gErr("Enter a username: your first and last name together, like vincilo.");
+    if(!/^[a-z]+$/.test(u)) return gErr("Usernames can only use lowercase English letters, a to z.");
+    if(u.length < 2) return gErr("That username looks too short. Use your first and last name together.");
+    if(p.length < 8) return gErr("Your password needs at least 8 characters.");
+    if(p !== p2) return gErr("The two passwords don't match. Type them again.");
+    busy(true, "Creating your account…");
+    try{
+      const hasLocal = Object.keys(S.done).length > 0 || (S.xp||0) > 0;
+      signedIn(await api("/signup", {method:"POST", body:{username:u, password:p, progress: hasLocal ? S : null}}), true);
+    }catch(e){ busy(false); gErr(e.message); }
+  } else {
+    const u = $("#liUser").value.trim().toLowerCase(), p = $("#liPass").value;
+    if(!u || !p) return gErr("Enter your username and password.");
+    busy(true, "Logging in…");
+    try{ signedIn(await api("/login", {method:"POST", body:{username:u, password:p}}), false); }
+    catch(e){ busy(false); gErr(e.message); }
   }
 }
 
-async function afterSignIn(){
-  const {data, error} = await AUTH.sb.from("profiles").select("*").eq("id", AUTH.user.id).maybeSingle();
-  if(error){ gateStep("email"); gErr("We couldn't load your account. Please try again."); return; }
-  if(data){ AUTH.profile = data; mergeProgress(data.progress); show("home"); }
-  else gateStep("name");
+function signedIn(r, isNew){
+  if(r.token){ AUTH.token = r.token; lsSet(TOKEN_KEY, r.token); }
+  AUTH.profile = r.user;
+  mergeProgress(r.progress);
+  const d = $("#authDlg"); if(d.open) d.close();
+  if(!$("#home").hidden) renderHome();
+  toast(isNew ? `Welcome to Wunny, ${r.user.username}!` : `Welcome back, ${r.user.username}!`);
+  if(isNew){ sfxWin(); confetti(); }
 }
 
 // Keep whichever copy of progress is further along: this device or the account.
 function mergeProgress(p){
   const rank = x => [Object.keys(x.done||{}).length, x.last||"", x.xp||0];
-  if(p && p.done){
+  if(p && typeof p === "object"){
     const a = rank(p), b = rank(S);
-    const serverAhead = a[0] > b[0] || (a[0] === b[0] && (a[1] > b[1] || (a[1] === b[1] && a[2] > b[2])));
-    if(serverAhead){ S = {...DEF, ...p, done:{...(p.done||{})}, days:[...(p.days||[])], set:{...DEF.set, ...(p.set||{})}}; saveLocal(); return; }
+    const accountAhead = a[0] > b[0] || (a[0] === b[0] && (a[1] > b[1] || (a[1] === b[1] && a[2] >= b[2])));
+    if(accountAhead){ S = {...DEF, ...p, done:{...(p.done||{})}, days:[...(p.days||[])], set:{...DEF.set, ...(p.set||{})}}; saveLocal(); return; }
   }
   syncUp();
 }
@@ -1292,51 +1294,129 @@ let syncT = 0;
 function syncUp(){
   if(!AUTH.on || !AUTH.profile) return;
   clearTimeout(syncT);
-  syncT = setTimeout(()=>{ AUTH.sb.from("profiles").update({progress:S, updated_at:new Date().toISOString()}).eq("id", AUTH.profile.id).then(()=>{}, ()=>{}); }, 600);
+  syncT = setTimeout(()=>{ api("/progress", {method:"PUT", body:{progress:S}}).catch(e=>{ if(e.status===401) expired(); }); }, 600);
+}
+function expired(){
+  AUTH.token = null; AUTH.profile = null; lsSet(TOKEN_KEY, null);
+  openAuth("login", "You've been logged out. Please log in again.");
 }
 async function logout(){
-  try{ await AUTH.sb.auth.signOut(); }catch(e){}
-  AUTH.user = null; AUTH.profile = null; AUTH.draft = {}; AUTH.email = "";
+  try{ await api("/logout", {method:"POST"}); }catch(e){}
+  AUTH.token = null; AUTH.profile = null; lsSet(TOKEN_KEY, null);
   S = JSON.parse(JSON.stringify(DEF)); saveLocal();
-  $("#setDlg").close(); openGate(); gateStep("email");
-}
-function openGate(){
-  show("gate");
-  const card = $("#gCard"), old = card.querySelector(".peek"); if(old) old.remove();
-  card.insertAdjacentHTML("afterbegin", peekHTML()); armPeek(card.querySelector(".peek"));
+  $("#setDlg").close(); show("home"); openAuth("login");
 }
 
-document.addEventListener("submit", e=>{ const f = e.target.closest(".gform"); if(!f) return; e.preventDefault(); gateSubmit(f.dataset.step, f); });
-let uT = 0;
+document.addEventListener("submit", e=>{
+  const f = e.target.closest("form"); if(!f) return;
+  if(f.id==="resetForm"){ e.preventDefault(); return resetPassword(f); }
+  if(f.classList.contains("gform")){ e.preventDefault(); submitAuth(f); }
+});
+document.addEventListener("change", e=>{
+  if(!e.target.matches("[data-showpw]")) return;
+  e.target.closest("form").querySelectorAll('input[type="password"],input[data-pw]').forEach(i=>{ i.dataset.pw = "1"; i.type = e.target.checked ? "text" : "password"; });
+});
 document.addEventListener("input", e=>{
-  if(e.target.id==="gCode"){ e.target.value = e.target.value.replace(/\D/g,""); return; }
-  if(e.target.id!=="gUser") return;
-  const v = e.target.value.toLowerCase().replace(/[^a-z0-9_]/g,""); if(v !== e.target.value) e.target.value = v;
-  clearTimeout(uT);
-  if(!v) return setUstat("", "");
-  if(v.length < 3) return setUstat("no", "At least 3 characters.");
-  setUstat("", "Checking…");
-  uT = setTimeout(async ()=>{
-    const {data, error} = await AUTH.sb.rpc("username_available", {name:v});
-    if(!$("#gUser") || $("#gUser").value !== v) return;
-    if(error) return setUstat("", "");
-    setUstat(data ? "ok" : "no", data ? `@${v} is available` : `@${v} is taken`);
-  }, 350);
+  const id = e.target.id;
+  if(id==="adminSearch"){ adminQ = e.target.value.trim().toLowerCase(); const t = $("#adminTbl"); if(t) t.innerHTML = adminTable(); return; }
+  if(id!=="suUser" && id!=="liUser") return;
+  const v = e.target.value.toLowerCase().replace(/\s+/g,""); if(v !== e.target.value) e.target.value = v;
+  if(id!=="suUser") return;
+  const st = $("#uStat");
+  if(!v){ st.className = "ustat"; st.textContent = ""; }
+  else if(/[^a-z]/.test(v)){ st.className = "ustat no"; st.textContent = "Only lowercase letters a to z. Take out numbers, symbols or accents."; }
+  else { st.className = "ustat ok"; st.textContent = `Your username will be ${v}`; }
 });
 
+/* ---------- Admin: learners ---------- */
+let LEARNERS = [], adminQ = "", adminState = "loading", adminErr = "";
+function lstats(p){
+  p = p || {};
+  const live = (p.last===today() || p.last===yesterday()) ? (p.streak||0) : 0;
+  return {done:Object.keys(p.done||{}).length, live, best:Math.max(p.best||0, live), xp:p.xp||0, last:p.last||null, days:(p.days||[]).length};
+}
+function fmtDay(k){
+  if(!k) return "Never";
+  if(k===today()) return "Today";
+  if(k===yesterday()) return "Yesterday";
+  const [y,m,d] = k.split("-").map(Number);
+  return new Date(y,m-1,d).toLocaleDateString("en",{month:"short", day:"numeric", year: y!==new Date().getFullYear() ? "numeric" : undefined});
+}
+const fmtDate = ms => ms ? new Date(ms).toLocaleDateString("en",{month:"short", day:"numeric", year:"numeric"}) : "—";
+
+function adminTable(){
+  if(adminState==="loading") return `<p class="empty">Loading learners…</p>`;
+  if(adminState==="error") return `<p class="empty">${esc(adminErr)}</p>`;
+  const rows = LEARNERS.map(l=>({...l, s:lstats(l.progress)}))
+    .filter(l=>!adminQ || l.username.includes(adminQ))
+    .sort((a,b)=>(b.s.last||"").localeCompare(a.s.last||"") || b.s.done - a.s.done || (b.lastSeen||0) - (a.lastSeen||0));
+  if(!rows.length) return `<p class="empty">${LEARNERS.length ? "No usernames match your search." : "No one has signed up yet."}</p>`;
+  return `<table class="tbl"><thead><tr><th scope="col">Username</th><th scope="col">Lessons</th><th scope="col">Streak</th><th scope="col">Best</th><th scope="col">XP</th><th scope="col">Days practised</th><th scope="col">Last practised</th><th scope="col">Joined</th><th scope="col"><span class="sr">Details</span></th></tr></thead>
+    <tbody>${rows.map(l=>`<tr><td class="u">${esc(l.username)}${l.admin ? '<span class="badge">Admin</span>' : ""}</td>
+      <td><span class="mbar"><i><b style="width:${l.s.done/ALL.length*100}%"></b></i>${l.s.done}/${ALL.length}</span></td>
+      <td>${l.s.live}</td><td>${l.s.best}</td><td>${l.s.xp}</td><td>${l.s.days}</td><td>${fmtDay(l.s.last)}</td><td>${fmtDate(l.created)}</td>
+      <td><button class="ghost mini" type="button" data-learner="${esc(l.username)}">Details</button></td></tr>`).join("")}</tbody></table>`;
+}
+function renderAdmin(){
+  const all = LEARNERS.map(l=>lstats(l.progress)), n = all.length;
+  const tile = (v,l) => `<div class="tile"><b>${v}</b><span>${l}</span></div>`;
+  $("#admin").innerHTML = `<header class="top"><div class="wrap">
+      <a class="brand" href="#" aria-label="Wunny home"><img src="${ART.logo}" alt=""><b>Wunny</b></a>
+      <button class="ghost mini" type="button" id="adminBack">Back to learning</button></div></header>
+    <main class="wrap admin">
+      <div class="rise"><span class="pill"><span class="dot"></span>Admin · ${esc(AUTH.profile ? AUTH.profile.username : "")}</span>
+        <h1>Learners</h1><p class="lead">Everyone who has signed up and how they're doing. Only admins can see this page.</p></div>
+      <div class="tiles rise" style="--i:1">${tile(n,"Learners")}${tile(all.filter(s=>s.last===today()).length,"Practised today")}${tile(n ? (all.reduce((a,s)=>a+s.done,0)/n).toFixed(1) : "0","Avg lessons done")}${tile(all.filter(s=>s.done>=ALL.length).length,`Finished all ${ALL.length}`)}</div>
+      <div class="tbar rise" style="--i:2"><label class="sr" for="adminSearch">Search learners</label>
+        <input class="inp" id="adminSearch" type="search" placeholder="Search usernames" value="${esc(adminQ)}" autocapitalize="none" spellcheck="false">
+        <button class="ghost mini" type="button" id="adminRefresh">Refresh</button></div>
+      <div class="tbl-wrap rise" style="--i:3" id="adminTbl">${adminTable()}</div>
+    </main>`;
+}
+async function openAdmin(){
+  if(!AUTH.profile || !AUTH.profile.admin) return;
+  adminState = "loading"; show("admin");
+  try{ LEARNERS = (await api("/admin/learners")).learners || []; adminState = "ready"; }
+  catch(e){ if(e.status===401) return expired(); adminState = "error"; adminErr = e.message; }
+  if(!$("#admin").hidden) renderAdmin();
+}
+function openLearner(name){
+  const l = LEARNERS.find(x=>x.username===name); if(!l) return;
+  const p = l.progress || {}, s = lstats(p), done = p.done || {};
+  $("#lrnIn").innerHTML = `<div class="dlg-h"><h2 id="lrnTitle">${esc(l.username)}${l.admin ? '<span class="badge">Admin</span>' : ""}</h2>
+      <button class="icon-btn" type="button" data-close aria-label="Close">${IC.x}</button></div>
+    <div class="stats"><div class="stat"><b>${s.live}</b><span>Streak</span></div><div class="stat"><b>${s.best}</b><span>Best</span></div><div class="stat"><b>${s.xp}</b><span>XP</span></div></div>
+    <p class="vstat" style="margin:0">Joined ${fmtDate(l.created)} · Last practised ${fmtDay(s.last)} · Last visit ${fmtDate(l.lastSeen)} · ${s.days} day${s.days===1?"":"s"} practised</p>
+    <ul class="wlist" aria-label="Lessons">${ALL.map(L=>`<li><span class="nsm ${done[L.i] ? "on" : ""}" aria-hidden="true">${done[L.i] ? IC.check : L.i+1}</span>
+      <span>${esc(L.t)}</span><span class="m">${done[L.i] ? "Done " + fmtDay(done[L.i]) : "Not yet"}</span></li>`).join("")}</ul>
+    <form id="resetForm" class="field" novalidate data-user="${esc(l.username)}" style="gap:10px">
+      <label for="rpPass">Set a new password for ${esc(l.username)}</label>
+      <input class="inp" id="rpPass" type="text" autocomplete="off" spellcheck="false"><small>At least 8 characters. Share it with them privately.</small>
+      <p class="gerr" id="rpErr" role="alert"></p>
+      <button class="ghost" type="submit" style="align-self:flex-start">Reset password</button></form>`;
+  $("#learnerDlg").showModal();
+}
+async function resetPassword(f){
+  const pw = $("#rpPass").value, err = $("#rpErr"), b = f.querySelector("button");
+  err.textContent = "";
+  if(pw.length < 8){ err.textContent = "Use at least 8 characters."; return; }
+  b.disabled = true;
+  try{ await api("/admin/reset", {method:"POST", body:{username:f.dataset.user, password:pw}}); $("#learnerDlg").close(); toast(`Password reset for ${f.dataset.user}`); }
+  catch(e){ err.textContent = e.message; }
+  b.disabled = false;
+}
+
+/* ---------- Start ---------- */
 async function boot(){
-  if(!SUPABASE_URL || !SUPABASE_KEY){ renderHome(); return; }
-  $("#home").hidden = true; openGate(); gateStep("loading");
-  try{
-    await loadScript(SB_LIB);
-    AUTH.sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-    AUTH.on = true;
-    const {data:{session}} = await AUTH.sb.auth.getSession();
-    if(session){ AUTH.user = session.user; await afterSignIn(); }
-    else gateStep("email");
-  }catch(e){
-    gateStep("email"); gErr("We couldn't reach the sign-up service. Check your connection and reload the page.");
+  AUTH.token = lsGet(TOKEN_KEY);
+  renderHome();
+  try{ const h = await api("/health"); AUTH.on = !!(h && h.ok); }catch(e){ AUTH.on = false; }
+  if(!AUTH.on) return;
+  if(AUTH.token){
+    try{ const r = await api("/me"); AUTH.profile = r.user; mergeProgress(r.progress); if(!$("#home").hidden) renderHome(); return; }
+    catch(e){ if(e.status!==401) return; AUTH.token = null; lsSet(TOKEN_KEY, null); }
   }
+  openAuth("signup");
 }
 boot();
 </script>

@@ -1,3 +1,6 @@
 [build]
-  publish = "."
+  publish = "public"
   command = ""
+
+[functions]
+  node_bundler = "esbuild"
