@@ -633,12 +633,11 @@ dialog[open]{animation:rise .25s ease both}
 @keyframes kfWobble{0%,100%{transform:rotate(0)}14%{transform:rotate(-2.6deg)}27%{transform:rotate(1.2deg)}38%{transform:rotate(-.9deg)}
   55%{transform:rotate(3deg)}68%{transform:rotate(-1.4deg)}80%{transform:rotate(1.6deg)}90%{transform:rotate(-.5deg)}}
 @keyframes kfArms{0%,100%{transform:none}30%{transform:rotate(-1.6deg) translateY(-.5%)}62%{transform:rotate(1.2deg) translateY(.3%)}}
-.rig-li{--ratio:117.67%;width:200px;max-width:100%;align-self:center}
-/* LinkedIn Wunny: snuggles the ball, rocking gently while his head tilts */
-.rig-li .l-hug{transform-origin:55% 96%;animation:liHug 4.2s ease-in-out infinite}
-.rig-li .l-head{transform-origin:55.3% 44%;animation:liHead 3.4s ease-in-out infinite}
-@keyframes liHug{0%,100%{transform:rotate(-1.4deg)}50%{transform:rotate(1.4deg) translateY(-1.5%)}}
-@keyframes liHead{0%,100%{transform:rotate(0)}30%{transform:rotate(-1.8deg)}65%{transform:rotate(1.6deg)}}
+.rig-li{--ratio:117.67%;width:190px;max-width:100%;align-self:center;margin:10px 0 6px}
+/* LinkedIn Wunny rolls back and forth as one picture, nothing is ever cut */
+.rig-li .l-roll{transform-origin:50% 55%;animation:liRoll 3.6s cubic-bezier(.45,.05,.55,.95) infinite}
+@keyframes liRoll{0%,100%{transform:translateX(-9%) rotate(-12deg)}50%{transform:translateX(9%) rotate(12deg)}}
+.contact-side{overflow:visible}
 .rig-flag{--ratio:101.88%}
 .rig-flag .f-rock{transform-origin:54.8% 58.8%;animation:flRock 4.6s ease-in-out infinite}
 .rig-flag .f-wave{transform-origin:44.2% 41.1%;animation:flWave 1.5s ease-in-out infinite alternate}
@@ -691,6 +690,35 @@ img{height:auto}
 /* speed round: breathing room between the word and the answers */
 #spQ{display:flex;flex-direction:column;gap:16px;margin-top:6px}
 #spQ .sp-prompt{margin-bottom:4px}
+
+/* speed round: time-crunch effects */
+.sp-time{position:relative;background:conic-gradient(#fff var(--p),rgba(255,255,255,.28) 0) padding-box,var(--grad);border:4px solid transparent;width:62px;height:62px}
+.sp-time>span{position:absolute;inset:5px;border-radius:50%;display:grid;place-items:center;background:var(--grad);color:#fff}
+.sp-time.beat{animation:spBeat .45s cubic-bezier(.3,1.6,.5,1)}
+@keyframes spBeat{0%{transform:scale(1.22)}100%{transform:scale(1)}}
+.sp-run{font-size:14px;font-weight:750;color:var(--teal-d);margin-left:2px}
+#spScore.bump{display:inline-block;animation:spBump .3s cubic-bezier(.3,1.6,.5,1)}
+@keyframes spBump{0%{transform:scale(1.45);color:var(--teal-d)}100%{transform:scale(1)}}
+.speed{position:relative}
+.speed.shake{animation:spShake .32s}
+@keyframes spShake{20%{transform:translateX(-7px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(2px)}}
+.sp-count{position:absolute;inset:-6px;display:grid;place-items:center;background:rgba(244,249,255,.86);border-radius:24px;z-index:3;backdrop-filter:blur(3px)}
+.sp-count b{font-size:96px;font-weight:850;letter-spacing:-.05em;line-height:1;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;padding:0 .1em .08em 0;animation:spCount .5s cubic-bezier(.2,1.4,.4,1) both}
+.sp-count b.go{background:linear-gradient(90deg,#19a582,#3fd0dc);-webkit-background-clip:text;background-clip:text}
+@keyframes spCount{0%{transform:scale(2.2);opacity:0}60%{opacity:1}100%{transform:scale(1)}}
+/* last 10 seconds: red clock, red bar, pulsing red edges; last 3 even faster */
+.sp-hurry .sp-time>span,.sp-hurry .sp-time{--grad:linear-gradient(135deg,#ff8a3d,#e8364a)}
+.sp-hurry .sp-bar span{background:linear-gradient(90deg,#ff8a3d,#e8364a);animation:barFlash .5s steps(2) infinite}
+@keyframes barFlash{50%{opacity:.55}}
+#lesson.sp-hurry::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:5;box-shadow:inset 0 0 0 0 rgba(232,54,74,0);animation:edgePulse 1s ease-in-out infinite}
+#lesson.sp-final::after{animation-duration:.5s}
+@keyframes edgePulse{0%,100%{box-shadow:inset 0 0 40px 4px rgba(232,54,74,.12)}50%{box-shadow:inset 0 0 90px 18px rgba(232,54,74,.32)}}
+.sp-final .speed{animation:spJitter .25s linear infinite}
+@keyframes spJitter{25%{transform:translate(.6px,-.4px)}75%{transform:translate(-.6px,.4px)}}
+.float-tag{position:fixed;z-index:60;transform:translate(-50%,0);font-weight:850;font-size:22px;letter-spacing:-.02em;pointer-events:none;animation:floatUp .9s ease-out forwards;color:var(--teal-d);text-shadow:0 2px 0 #fff}
+.float-tag.time{color:#e8364a;font-size:20px}
+@keyframes floatUp{0%{opacity:0;transform:translate(-50%,6px) scale(.8)}15%{opacity:1;transform:translate(-50%,-6px) scale(1.15)}100%{opacity:0;transform:translate(-50%,-46px) scale(1)}}
+@media (prefers-reduced-motion:reduce){#lesson.sp-hurry::after,.sp-final .speed,.sp-hurry .sp-bar span{animation:none}}
 
 /* looking back at earlier questions */
 .lhead .wrap{gap:10px}
@@ -900,8 +928,7 @@ const profRig = (cls="") => `<div class="rig rig-prof ${cls}" role="img" aria-la
   ${rigImg("prof-body","p-body")}${rigImg("prof-arm","p-arm")}${rigImg("prof-head","p-head")}</div>`;
 const kungfuRig = (cls="") => `<div class="rig rig-kf ${cls}" role="img" aria-label="Wunny in a yellow kung fu shirt, balancing on a wooden post with nunchucks">
   ${rigImg("kungfu-stick","k-stick")}<div class="k-sway">${rigImg("kungfu-body","k-body")}${rigImg("kungfu-arms","k-arms")}</div></div>`;
-const linkedinRig = (cls="") => `<div class="rig rig-li ${cls}" role="img" aria-label="Wunny hugging a LinkedIn ball">
-  <div class="l-hug">${rigImg("linkedin-body","l-body")}${rigImg("linkedin-head","l-head")}</div></div>`;
+const linkedinRig = (cls="") => `<div class="rig rig-li ${cls}" role="img" aria-label="Wunny hugging a LinkedIn ball">${rigImg("linkedin","l-roll")}</div>`;
 const flagRig = (cls="") => `<div class="rig rig-flag ${cls}" role="img" aria-label="Wunny rolling on his back, waving a Hong Kong flag">
   <div class="f-rock">${rigImg("flag-body","f-body")}<div class="f-wave">${rigImg("flag-pole","f-pole")}<canvas class="f-cloth" aria-hidden="true"></canvas></div>${rigImg("flag-hands","f-hands")}</div></div>`;
 
@@ -1644,7 +1671,7 @@ function onPrimary(){
   if(!Q.checked){ if(Q.sel==null) return; check(); } else next();
 }
 function next(){
-  hush();
+  hush(); bgmRate(1); $("#lesson").classList.remove("sp-hurry","sp-final");
   const done = cur();
   if(done && done.t!=="start" && done.t!=="speed"){
     Q.hist.push({html:$("#stageIn").innerHTML, fb:$("#fb").innerHTML, cls:["good","bad"].filter(c=>$("#bar").classList.contains(c)), it:done.it});
@@ -1653,6 +1680,13 @@ function next(){
   Q.i++;
   if(Q.i >= Q.steps.length) return finish();
   renderStep();
+}
+
+function floatTag(el, text, kind){
+  if(!el) return; const r = el.getBoundingClientRect(), f = document.createElement("span");
+  f.className = "float-tag " + (kind||""); f.textContent = text;
+  f.style.left = (r.left + r.width/2) + "px"; f.style.top = (r.top + 4) + "px";
+  document.body.appendChild(f); setTimeout(()=>f.remove(), 900);
 }
 
 /* ---------- Stop talking ---------- */
@@ -1795,7 +1829,7 @@ document.addEventListener("click", e=>{
   if(t.closest("#quit")) return $("#quitDlg").showModal();
   if(t.closest("#backQ")) return lookBack();
   if(Q && Q.view!=null && t.closest("#stage") && (t.closest("[data-tile]") || t.closest("[data-ml]") || t.closest("[data-mr]") || t.closest("[data-reveal]"))) return;
-  if(t.closest("#quitYes")){ $("#quitDlg").close(); hush(); if(Q){ clearInterval(Q.mT); clearInterval(Q.spT); } Q = null; show("home"); return; }
+  if(t.closest("#quitYes")){ $("#quitDlg").close(); hush(); bgmRate(1); $("#lesson").classList.remove("sp-hurry","sp-final"); if(Q && Q.sp) clearTimeout(Q.sp.cdT); if(Q){ clearInterval(Q.mT); clearInterval(Q.spT); } Q = null; show("home"); return; }
   const tile = t.closest("[data-tile]"); if(tile){ tilePick(+tile.dataset.tile); return; }
   const ml = t.closest("[data-ml]"); if(ml){ matchPick("l", +ml.dataset.ml); return; }
   const mr = t.closest("[data-mr]"); if(mr){ matchPick("r", +mr.dataset.mr); return; }
@@ -2134,12 +2168,12 @@ const EXTRA = {
       </div>`};
   },
   speed(st, it, tagH){
-    const best = (S.sp||{})[Q.L.i];
+    const best = (S.sp||{})["q"+Q.L.i];
     return {needSel:false, primary:"Go!", h:`<div class="startcard"><img class="art" src="${ART.hug}" alt="">
       <div class="qtop"><span class="pill"><span class="dot"></span>Finale</span></div>
       <div><h2 class="qh" style="font-size:clamp(30px,5.4vw,44px);letter-spacing:-.045em">Speed <span class="g">round</span></h2>
-      <p class="lead" style="margin-top:8px">60 seconds. Answer as many as you can. Wrong answers just move on.</p></div></div>
-      <div class="tip"><strong>${best!=null ? "Your best" : "How it works"}</strong><p>${best!=null ? `${best} right in 60 seconds. Can you beat it?` : "Each right answer earns 2 XP. Press 1 to 4 on a keyboard to answer even faster."}</p></div>`};
+      <p class="lead" style="margin-top:8px">30 seconds. Answer as many as you can. Three right in a row adds 2 bonus seconds.</p></div></div>
+      <div class="tip"><strong>${best!=null ? "Your best" : "How it works"}</strong><p>${best!=null ? `${best} right in 30 seconds. Can you beat it?` : "Each right answer earns 2 XP. Press 1 to 4 on a keyboard to answer even faster."}</p></div>`};
   },
 };
 function afterRender(st){
@@ -2213,15 +2247,30 @@ function finishMatch(st){
 }
 
 /* Speed round */
+/* Speed round: 30 seconds, a 3-2-1 countdown, a ring that drains, music that speeds up,
+   and a red, ticking, pulsing last 10 seconds. Three right in a row adds 2 seconds. */
+const SP_SECS = 30;
+function bgmRate(r){ try{ if(BGM.el){ BGM.el.preservesPitch = true; BGM.el.playbackRate = r; } }catch(e){} }
 function speedStart(){
   const st = cur(); Q.checked = false;
-  Q.sp = {score:0, end:Date.now()+60000, q:null, last:null};
+  Q.sp = {score:0, end:Infinity, total:SP_SECS*1000, q:null, last:null, run:0, lastSec:null};
   $("#primary").hidden = true;
-  $("#stageIn").innerHTML = `<div class="speed"><div class="sp-top"><span class="sp-score"><b id="spScore">0</b> right</span><span class="sp-time" id="spTime">60</span></div>
-    <div class="sp-bar"><span id="spBar"></span></div><div id="spQ"></div></div>`;
-  speedNext();
-  clearInterval(Q.spT); Q.spT = setInterval(speedTick, 100);
+  $("#stageIn").innerHTML = `<div class="speed"><div class="sp-top"><span class="sp-score"><b id="spScore">0</b> right<span class="sp-run" id="spRun"></span></span><span class="sp-time" id="spTime" style="--p:100%"><span>${SP_SECS}</span></span></div>
+    <div class="sp-bar"><span id="spBar"></span></div><div id="spQ"></div><div class="sp-count" id="spCount" aria-live="assertive"></div></div>`;
   hush(); backState();
+  const cd = $("#spCount"); let n = 3;
+  const step = () => {
+    if(!Q || !Q.sp) return;
+    if(n > 0){ cd.innerHTML = `<b>${n}</b>`; cd.firstChild.classList.add("pop"); tones([[660,0,.09,"square",.08]]); n--; Q.sp.cdT = setTimeout(step, 520); }
+    else {
+      cd.innerHTML = `<b class="go">Go!</b>`; tones([[988,0,.14,"square",.1],[1319,.05,.18,"sine",.2]]);
+      setTimeout(()=>{ if(cd.isConnected) cd.remove(); }, 380);
+      Q.sp.end = Date.now() + SP_SECS*1000; bgmRate(1.1);
+      speedNext();
+      clearInterval(Q.spT); Q.spT = setInterval(speedTick, 50);
+    }
+  };
+  step();
 }
 function speedPool(){
   const own = Q.L.items, older = shuffle(ALL.slice(0, Q.L.i).flatMap(l=>l.items)).slice(0, 12);
@@ -2239,26 +2288,55 @@ function speedPick(k){
   q.locked = true;
   const ok = q.opts[k] === q.it, btns = document.querySelectorAll("#spQ .opt");
   btns.forEach((b,j)=>{ if(q.opts[j]===q.it) b.classList.add("right"); else if(j===k) b.classList.add("wrong"); });
-  if(ok){ Q.sp.score++; $("#spScore").textContent = Q.sp.score; tones([[988,0,.09,"sine",.4],[1480,.04,.08,"sine",.15]]); } else tones([[220,0,.14,"triangle",.5]]);
-  setTimeout(()=>{ if(Q && Q.sp && Date.now() < Q.sp.end) speedNext(); }, ok ? 240 : 650);
+  const sb = $("#spScore"), run = $("#spRun");
+  if(ok){
+    Q.sp.score++; Q.sp.run++; sb.textContent = Q.sp.score;
+    sb.classList.remove("bump"); void sb.offsetWidth; sb.classList.add("bump");
+    tones([[988+Q.sp.run*40,0,.09,"sine",.4],[1480+Q.sp.run*60,.04,.08,"sine",.15]]);
+    floatTag(btns[k], "+1", "good");
+    if(Q.sp.run % 3 === 0){ Q.sp.end += 2000; Q.sp.total += 2000; floatTag($("#spTime"), "+2s", "time"); tones([[1319,0,.08,"sine",.3],[1760,.06,.12,"sine",.3]]); }
+  } else {
+    Q.sp.run = 0;
+    tones([[220,0,.14,"triangle",.5]]);
+    const sp = $(".speed"); sp.classList.remove("shake"); void sp.offsetWidth; sp.classList.add("shake");
+  }
+  if(run) run.textContent = Q.sp.run >= 2 ? ` · ${Q.sp.run} in a row` : "";
+  setTimeout(()=>{ if(Q && Q.sp && Date.now() < Q.sp.end) speedNext(); }, ok ? 180 : 520);
 }
 function speedTick(){
   if(!Q || !Q.sp){ return; }
   const left = Math.max(0, Q.sp.end - Date.now());
   const t = $("#spTime"), bar = $("#spBar");
-  const secs = Math.ceil(left/1000);
-  if(t && t.textContent !== String(secs)){ t.textContent = secs; if(secs <= 5 && secs > 0) sfxTick(); }
-  if(bar) bar.style.width = (left/600) + "%";
+  const secs = Math.ceil(left/1000), pct = Math.min(100, left / Q.sp.total * 100);
+  if(t){
+    t.style.setProperty("--p", pct + "%");
+    if(Q.sp.lastSec !== secs){
+      Q.sp.lastSec = secs; t.firstChild.textContent = secs;
+      if(secs <= 10 && secs > 0){
+        t.classList.remove("beat"); void t.offsetWidth; t.classList.add("beat");
+        // tick-tock that climbs in pitch, with a heartbeat thump in the last 3
+        tones([[secs <= 3 ? 1760 : (secs % 2 ? 1320 : 1100),0,.035,"square",secs <= 3 ? .09 : .05]]);
+        if(secs <= 3) tones([[70,0,.16,"sine",.6],[60,.12,.14,"sine",.45]]);
+      }
+    }
+  }
+  const L = $("#lesson");
+  L.classList.toggle("sp-hurry", left <= 10000 && left > 0);
+  L.classList.toggle("sp-final", left <= 3000 && left > 0);
+  if(left <= 10000 && !Q.sp.fast){ Q.sp.fast = true; bgmRate(1.22); }
+  if(left > 10000 && Q.sp.fast){ Q.sp.fast = false; bgmRate(1.1); }
+  if(bar) bar.style.width = pct + "%";
   if(left <= 0){ clearInterval(Q.spT); speedDone(); }
 }
 function speedDone(){
   const sc = Q.sp.score, i = Q.L.i;
-  S.sp = S.sp || {}; const prev = S.sp[i], best = prev==null || sc > prev;
-  if(best) S.sp[i] = sc;
+  S.sp = S.sp || {}; const key = "q"+i, prev = S.sp[key], best = prev==null || sc > prev;   // 30-second records, kept apart from the old 60-second ones
+  if(best) S.sp[key] = sc;
+  bgmRate(1); $("#lesson").classList.remove("sp-hurry","sp-final");
   Q.xp += sc * 2; Q.sp.q = null;
   $("#stageIn").innerHTML = `<div class="sp-done"><img class="done-art" src="${ART.hug}" alt="">
     <span class="pill"><span class="dot"></span>Time's up</span>
-    <h2 class="qh" style="font-size:clamp(30px,5.4vw,44px)"><span class="g">${sc}</span> right in 60 seconds</h2>
+    <h2 class="qh" style="font-size:clamp(30px,5.4vw,44px)"><span class="g">${sc}</span> right in 30 seconds</h2>
     <p class="lead">${best && prev!=null ? `New best! Your old record was ${prev}.` : best ? "That's your first record. Beat it next time!" : `Your best is ${prev}. So close!`} You earned ${sc*2} XP.</p></div>`;
   Q.checked = true; setTimeout(backState);
   if(best && sc > 0){ sfxWin(); sparkle($(".sp-done h2")); } else sfxGood();
