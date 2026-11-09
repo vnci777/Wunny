@@ -1,4 +1,4 @@
-// Wunny accounts API: sign-up, log-in, saved progress and the admin learner list.
+// Wunny accounts API: sign-up, log-in, saved progress, contact messages and the admin tools.
 // The storage object is passed in so this file can run against Netlify Blobs or a test store.
 import crypto from "node:crypto";
 
@@ -144,7 +144,7 @@ export function makeHandler(store, getEnv = () => undefined) {
         };
         await putUser(user);
         const token = await newSession(username);
-        return json(201, { token, user: publicUser(user), progress: user.progress });
+        return json(201, { token, user: publicUser(user), progress: user.progress, epoch: 0 });
       }
 
       if (path === "/login" && method === "POST") {
@@ -170,7 +170,22 @@ export function makeHandler(store, getEnv = () => undefined) {
         user.lastSeen = Date.now();
         await putUser(user);
         const token = await newSession(username);
-        return json(200, { token, user: publicUser(user), progress: user.progress });
+        return json(200, { token, user: publicUser(user), progress: user.progress, epoch: user.epoch || 0 });
+      }
+
+      if (path === "/contact" && method === "POST") {
+        const b = await readBody(req);
+        if (b.website) return json(200, { ok: true }); // filled only by spam bots
+        const name = String(b.name || "").trim().slice(0, 80);
+        const email = String(b.email || "").trim().slice(0, 120);
+        const message = String(b.message || "").trim();
+        if (!message || message.length < 5) return json(400, { error: "Write a message before you send it." });
+        if (message.length > 2000) return json(400, { error: "Keep your message under 2,000 characters." });
+        if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return json(400, { error: "That email address doesn't look right." });
+        const sender = await authenticate(req);
+        const id = Date.now() + "-" + crypto.randomBytes(4).toString("hex");
+        await store.setJSON("messages/" + id, { id, name, email, message, username: sender ? sender.user.username : null, created: Date.now() });
+        return json(200, { ok: true });
       }
 
       const auth = await authenticate(req);
@@ -180,13 +195,15 @@ export function makeHandler(store, getEnv = () => undefined) {
       if (path === "/me" && method === "GET") {
         me.lastSeen = Date.now();
         await putUser(me);
-        return json(200, { user: publicUser(me), progress: me.progress });
+        return json(200, { user: publicUser(me), progress: me.progress, epoch: me.epoch || 0 });
       }
 
       if (path === "/progress" && method === "PUT") {
         const b = await readBody(req);
         const progress = cleanProgress(b.progress);
         if (!progress) return json(400, { error: "Your progress couldn't be saved." });
+        if ((Number(b.epoch) || 0) < (me.epoch || 0))
+          return json(409, { error: "Your progress was reset.", progress: me.progress, epoch: me.epoch });
         me.progress = progress;
         me.lastSeen = Date.now();
         await putUser(me);
@@ -213,6 +230,32 @@ export function makeHandler(store, getEnv = () => undefined) {
               progress: u.progress || null,
             })),
           });
+        }
+
+        if (path === "/admin/reset-progress" && method === "POST") {
+          const b = await readBody(req);
+          const name = String(b.username || "");
+          const target = USERNAME.test(name) ? await getUser(name) : null;
+          if (!target) return json(404, { error: "There's no learner with that username." });
+          target.progress = null;
+          target.epoch = (target.epoch || 0) + 1;
+          await putUser(target);
+          return json(200, { ok: true });
+        }
+
+        if (path === "/admin/messages" && method === "GET") {
+          const { blobs } = await store.list({ prefix: "messages/" });
+          const msgs = (await Promise.all(blobs.map((x) => store.get(x.key, { type: "json" })))).filter(Boolean);
+          msgs.sort((a, b) => b.created - a.created);
+          return json(200, { messages: msgs });
+        }
+
+        if (path === "/admin/messages/delete" && method === "POST") {
+          const b = await readBody(req);
+          const id = String(b.id || "");
+          if (!/^\d+-[0-9a-f]{8}$/.test(id)) return json(400, { error: "That message couldn't be found." });
+          await store.delete("messages/" + id);
+          return json(200, { ok: true });
         }
 
         if (path === "/admin/reset" && method === "POST") {
