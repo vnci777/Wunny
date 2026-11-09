@@ -86,7 +86,7 @@ export function makeHandler(store) {
         const username = String(b.username || "");
         const password = String(b.password || "");
         if (!USERNAME.test(username))
-          return json(400, { error: "Usernames use lowercase English letters only, with no spaces. Example: vincilo." });
+          return json(400, { error: "Usernames use lowercase English letters only, with no spaces. Example: janedoe." });
         if (password.length < 8 || password.length > 200)
           return json(400, { error: "Your password needs at least 8 characters." });
         if (await getUser(username))
