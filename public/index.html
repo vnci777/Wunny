@@ -633,6 +633,12 @@ dialog[open]{animation:rise .25s ease both}
 @keyframes kfWobble{0%,100%{transform:rotate(0)}14%{transform:rotate(-2.6deg)}27%{transform:rotate(1.2deg)}38%{transform:rotate(-.9deg)}
   55%{transform:rotate(3deg)}68%{transform:rotate(-1.4deg)}80%{transform:rotate(1.6deg)}90%{transform:rotate(-.5deg)}}
 @keyframes kfArms{0%,100%{transform:none}30%{transform:rotate(-1.6deg) translateY(-.5%)}62%{transform:rotate(1.2deg) translateY(.3%)}}
+.rig-li{--ratio:117.67%;width:200px;max-width:100%;align-self:center}
+/* LinkedIn Wunny: snuggles the ball, rocking gently while his head tilts */
+.rig-li .l-hug{transform-origin:55% 96%;animation:liHug 4.2s ease-in-out infinite}
+.rig-li .l-head{transform-origin:55.3% 44%;animation:liHead 3.4s ease-in-out infinite}
+@keyframes liHug{0%,100%{transform:rotate(-1.4deg)}50%{transform:rotate(1.4deg) translateY(-1.5%)}}
+@keyframes liHead{0%,100%{transform:rotate(0)}30%{transform:rotate(-1.8deg)}65%{transform:rotate(1.6deg)}}
 .rig-flag{--ratio:101.88%}
 .rig-flag .f-rock{transform-origin:54.8% 58.8%;animation:flRock 4.6s ease-in-out infinite}
 .rig-flag .f-wave{transform-origin:44.2% 41.1%;animation:flWave 1.5s ease-in-out infinite alternate}
@@ -894,6 +900,8 @@ const profRig = (cls="") => `<div class="rig rig-prof ${cls}" role="img" aria-la
   ${rigImg("prof-body","p-body")}${rigImg("prof-arm","p-arm")}${rigImg("prof-head","p-head")}</div>`;
 const kungfuRig = (cls="") => `<div class="rig rig-kf ${cls}" role="img" aria-label="Wunny in a yellow kung fu shirt, balancing on a wooden post with nunchucks">
   ${rigImg("kungfu-stick","k-stick")}<div class="k-sway">${rigImg("kungfu-body","k-body")}${rigImg("kungfu-arms","k-arms")}</div></div>`;
+const linkedinRig = (cls="") => `<div class="rig rig-li ${cls}" role="img" aria-label="Wunny hugging a LinkedIn ball">
+  <div class="l-hug">${rigImg("linkedin-body","l-body")}${rigImg("linkedin-head","l-head")}</div></div>`;
 const flagRig = (cls="") => `<div class="rig rig-flag ${cls}" role="img" aria-label="Wunny rolling on his back, waving a Hong Kong flag">
   <div class="f-rock">${rigImg("flag-body","f-body")}<div class="f-wave">${rigImg("flag-pole","f-pole")}<canvas class="f-cloth" aria-hidden="true"></canvas></div>${rigImg("flag-hands","f-hands")}</div></div>`;
 
@@ -2347,7 +2355,7 @@ const PAGES = {
         <p class="gerr" id="cErr" role="alert"></p>
         <button class="btn shine" type="submit">Send message</button>
       </form>
-      <div class="contact-side"><img src="${ART.taxi}" alt="Wunny waving from a red taxi">
+      <div class="contact-side">${linkedinRig()}
         <p>You can also find us on LinkedIn.</p><a class="ghost" href="${LINKEDIN}" target="_blank" rel="noopener">${IC.linkedin}Wunny on LinkedIn</a></div>
     </div>`,
   terms: () => `<div class="rise"><span class="pill"><span class="dot"></span>Terms</span><h1>Terms of <span class="g">use</span></h1><p class="lead">Last updated November 9, 2026</p></div>
