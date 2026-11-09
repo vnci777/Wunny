@@ -664,13 +664,14 @@ function lessonState(i){
 
 /* ---------- Voice ---------- */
 const V = {ok:"speechSynthesis" in window, voice:null, list:[], status:"checking"};
-// Rank the device's Cantonese voices: neural "Natural" / "Premium" / "Enhanced" voices sound far livelier than the basic ones.
+// Rank the device's Cantonese voices: Google 粵語（香港） first, then neural "Natural" / "Premium" / "Enhanced" voices, then the rest.
+// A voice the learner picks in Settings always wins.
 function voiceScore(v){
   const n = v.name; let s = 0;
   if(/natural|neural|premium|enhanced/i.test(n)) s += 10;
   if(/online/i.test(n)) s += 3;
   if(/hiugaai|hiumaan|sinji|sin-ji/i.test(n)) s += 3;
-  if(/google/i.test(n)) s += 2;
+  if(/google/i.test(n)) s += 50;   // "Google 粵語（香港）" is the default whenever the browser has it
   if(v.localService === false) s += 1;
   return s;
 }
