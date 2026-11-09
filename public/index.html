@@ -617,29 +617,27 @@ dialog[open]{animation:rise .25s ease both}
 
 /* Animated Wunny rigs: every layer is the same size, so each pivot is a point in the picture */
 .rig{position:relative;flex:none}
+/* height comes from a padding box (works in every browser, never stretches) */
+.rig::before{content:"";display:block;padding-top:var(--ratio)}
 .rig>img,.rig>div,.rig>div>img,.rig>div>div,.rig>div>div>img,.rig canvas{position:absolute;inset:0;width:100%;height:100%}
 .rig img{max-width:none;pointer-events:none;user-select:none;-webkit-user-drag:none}
-.rig-prof{aspect-ratio:647/743}
-.rig-prof{transform-origin:50% 100%;animation:profBreathe 3.4s ease-in-out infinite}
+.rig-prof{--ratio:114.84%}
 .rig-prof .p-head{transform-origin:53.4% 59.6%;animation:profHead 6.8s ease-in-out infinite}
 .rig-prof .p-arm{transform-origin:37.2% 65%;animation:profArm 3.4s ease-in-out infinite}
-@keyframes profBreathe{0%,100%{transform:none}50%{transform:scale(1.012,1.018)}}
-@keyframes profHead{0%,100%{transform:rotate(0)}22%{transform:rotate(-2.2deg)}48%{transform:rotate(-.4deg)}72%{transform:rotate(2deg)}}
+@keyframes profHead{0%,100%{transform:rotate(0)}22%{transform:rotate(-1.6deg)}48%{transform:rotate(-.3deg)}72%{transform:rotate(1.5deg)}}
 /* idle NPC: the apple dips, bobs back up and settles */
-@keyframes profArm{0%,100%{transform:rotate(0)}38%{transform:rotate(-3.4deg)}58%{transform:rotate(-2.6deg)}70%{transform:rotate(-3deg)}88%{transform:rotate(.4deg)}}
-.rig-kf{aspect-ratio:640/1024}
+@keyframes profArm{0%,100%{transform:rotate(0)}38%{transform:rotate(-2.4deg)}58%{transform:rotate(-1.7deg)}70%{transform:rotate(-2.1deg)}88%{transform:rotate(.2deg)}}
+.rig-kf{--ratio:160%}
 .rig-kf .k-sway{transform-origin:49.8% 76.9%;animation:kfWobble 3.9s ease-in-out infinite}
 .rig-kf .k-arms{transform-origin:40.8% 46.6%;animation:kfArms 1.9s ease-in-out infinite}
 @keyframes kfWobble{0%,100%{transform:rotate(0)}14%{transform:rotate(-2.6deg)}27%{transform:rotate(1.2deg)}38%{transform:rotate(-.9deg)}
   55%{transform:rotate(3deg)}68%{transform:rotate(-1.4deg)}80%{transform:rotate(1.6deg)}90%{transform:rotate(-.5deg)}}
 @keyframes kfArms{0%,100%{transform:none}30%{transform:rotate(-1.6deg) translateY(-.5%)}62%{transform:rotate(1.2deg) translateY(.3%)}}
-.rig-flag{aspect-ratio:640/652}
+.rig-flag{--ratio:101.88%}
 .rig-flag .f-rock{transform-origin:54.8% 58.8%;animation:flRock 4.6s ease-in-out infinite}
-.rig-flag .f-foot{transform-origin:25.9% 51.1%;animation:flKick 1.7s ease-in-out infinite}
 .rig-flag .f-wave{transform-origin:44.2% 41.1%;animation:flWave 1.5s ease-in-out infinite alternate}
 @keyframes flRock{0%,100%{transform:rotate(-2.6deg)}50%{transform:rotate(2.8deg) translateY(-1%)}}
-@keyframes flKick{0%,100%{transform:rotate(0)}35%{transform:rotate(-8deg)}60%{transform:rotate(2deg)}80%{transform:rotate(-3deg)}}
-@keyframes flWave{from{transform:rotate(-7deg)}to{transform:rotate(5deg)}}
+@keyframes flWave{from{transform:rotate(-6deg)}to{transform:rotate(5deg)}}
 .startcard .rig.art,.done-art.rig,.today .rig.side{animation:none}
 .startcard .rig-kf.art{width:118px;justify-self:center}
 .done-art.rig-kf{width:150px}
@@ -647,6 +645,53 @@ dialog[open]{animation:rise .25s ease both}
 .today .side.rig-flag{width:170px;right:6px;bottom:10px}
 .today.rest:has(.rig-flag){padding-right:180px}
 @media (max-width:520px){.startcard .rig-kf.art{width:100px}.today.rest:has(.rig-flag){padding-right:20px;padding-bottom:160px}}
+
+/* gradient words: room for the last letter's overhang and descenders, so nothing is clipped */
+.g,.brand b{padding:0 .12em .1em 0;margin-right:-.12em;-webkit-box-decoration-break:clone;box-decoration-break:clone}
+.brand b{margin-right:0}
+
+/* images never stretch, whatever box they sit in */
+img{height:auto}
+.startcard .art,.ctx-art,.done-art,.note img,.today .side,.contact-side img,.card-form.sent img{align-self:center}
+
+/* top bar on phones: one tidy row, icons centred */
+.icon-btn{flex:none;padding:0;line-height:0}
+.icon-btn svg{display:block;margin:auto}
+.chip{flex:none}
+@media (max-width:520px){
+  .top .wrap{flex-wrap:nowrap;gap:8px;padding-block:12px}
+  .brand{gap:8px;min-width:0}
+  .brand img{width:38px;height:38px;border-radius:12px}
+  .brand b{font-size:20px}
+  .chip{padding:5px 10px;font-size:14px;gap:5px}
+  .chip small{font-size:11px}
+  .icon-btn{width:38px;height:38px}
+  .icon-btn svg{width:19px;height:19px}
+}
+@media (max-width:359px){.brand b{display:none}}
+
+/* listening card: Wunny the detective sits fully inside the card, top left */
+.listen .det{left:16px;top:16px;bottom:auto;width:76px;opacity:1}
+@media (max-width:520px){.listen .det{left:10px;top:12px;width:60px}}
+
+/* "Show the words" matches the other small buttons */
+.listen [data-reveal]{display:inline-flex;align-items:center;gap:8px;min-height:38px;padding:0 16px;border-radius:999px;border:1.5px solid var(--line-2);background:#fff;
+  color:var(--blue-d);font:inherit;font-weight:650;font-size:14px;box-shadow:0 2px 0 var(--line-2);cursor:pointer;text-decoration:none}
+.listen [data-reveal]:active{transform:translateY(2px);box-shadow:none}
+.listen [data-reveal] svg{width:16px;height:16px}
+
+/* speed round: breathing room between the word and the answers */
+#spQ{display:flex;flex-direction:column;gap:16px;margin-top:6px}
+#spQ .sp-prompt{margin-bottom:4px}
+
+/* looking back at earlier questions */
+.lhead .wrap{gap:10px}
+#backQ svg{width:20px;height:20px}
+#stage.review .opt,#stage.review .tile,#stage.review .mt,#stage.review [data-tile],#stage.review [data-ml],#stage.review [data-mr],#stage.review [data-reveal]{pointer-events:none}
+#stage.review .wrap>*{animation:none}
+.lookback{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.lookback .pill{background:#fff7e6;border-color:#f3cf86;color:#8a5a00}
+.lookback .pill .dot{background:#f2a516;box-shadow:0 0 0 4px rgba(242,165,22,.2)}
 
 /* volume sliders */
 .vol-row{display:grid;grid-template-columns:minmax(0,1fr) 46px;align-items:center;gap:4px 12px;padding:10px 0;border-bottom:1px solid var(--line)}
@@ -669,6 +714,7 @@ dialog[open]{animation:rise .25s ease both}
 
 <section id="lesson" class="view" hidden>
   <header class="lhead"><div class="wrap">
+    <button class="icon-btn" id="backQ" type="button" aria-label="Look back at the previous question" title="Previous question" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button>
     <button class="icon-btn" id="quit" type="button" aria-label="Quit lesson"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
     <div class="prog" id="prog" role="progressbar" aria-label="Lesson progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span></span></div>
     <div class="combo" id="combo" aria-live="polite"></div>
@@ -847,7 +893,7 @@ const profRig = (cls="") => `<div class="rig rig-prof ${cls}" role="img" aria-la
 const kungfuRig = (cls="") => `<div class="rig rig-kf ${cls}" role="img" aria-label="Wunny in a yellow kung fu shirt, balancing on a wooden post with nunchucks">
   ${rigImg("kungfu-stick","k-stick")}<div class="k-sway">${rigImg("kungfu-body","k-body")}${rigImg("kungfu-arms","k-arms")}</div></div>`;
 const flagRig = (cls="") => `<div class="rig rig-flag ${cls}" role="img" aria-label="Wunny rolling on his back, waving a Hong Kong flag">
-  <div class="f-rock">${rigImg("flag-foot","f-foot")}${rigImg("flag-body","f-body")}<div class="f-wave">${rigImg("flag-pole","f-pole")}<canvas class="f-cloth" aria-hidden="true"></canvas></div>${rigImg("flag-hands","f-hands")}</div></div>`;
+  <div class="f-rock">${rigImg("flag-body","f-body")}<div class="f-wave">${rigImg("flag-pole","f-pole")}<canvas class="f-cloth" aria-hidden="true"></canvas></div>${rigImg("flag-hands","f-hands")}</div></div>`;
 
 /* The flag cloth ripples: the picture is redrawn in thin upright strips, each nudged up or down along a travelling wave.
    Strips near the pole hardly move; the free end moves most. */
@@ -859,14 +905,14 @@ function flagLoop(){
   if(!FLAG.img){ FLAG.img = new Image(); FLAG.img.onload = ()=>{ FLAG.ready = true; flagLoop(); }; FLAG.img.src = "art/flag-cloth.webp"; return; }
   if(!FLAG.ready) return;
   const still = calm(), t = performance.now()/1000, im = FLAG.img, IW = im.naturalWidth, IH = im.naturalHeight;
-  const POLE = .41*IW, FREE = .04*IW, STEP = 3;
+  const POLE = .372*IW, FREE = .049*IW, END = .45*IW, STEP = 3;
   cs.forEach(c=>{
     const r = c.getBoundingClientRect(); if(!r.width) return;
     const dpr = Math.min(2, window.devicePixelRatio||1), W = Math.round(r.width*dpr), H = Math.round(r.height*dpr);
     if(c.width!==W || c.height!==H){ c.width = W; c.height = H; }
     const x = c.getContext("2d"), k = W/IW;
     x.clearRect(0,0,W,H);
-    for(let sx=Math.floor(FREE)-6; sx<POLE+8; sx+=STEP){
+    for(let sx=Math.floor(FREE)-6; sx<END; sx+=STEP){
       const d = Math.max(0, Math.min(1, (POLE-sx)/(POLE-FREE)));
       const ph = d*5.2 - t*6.2;
       const dy = still ? 0 : Math.sin(ph) * d * IH*.016;
@@ -874,7 +920,7 @@ function flagLoop(){
     }
     if(!still){   // soft light and shade in the folds
       x.globalCompositeOperation = "source-atop";
-      for(let sx=Math.floor(FREE)-6; sx<POLE+8; sx+=STEP){
+      for(let sx=Math.floor(FREE)-6; sx<END; sx+=STEP){
         const d = Math.max(0, Math.min(1, (POLE-sx)/(POLE-FREE))), s = Math.cos(d*5.2 - t*6.2) * d;
         x.fillStyle = s > 0 ? `rgba(255,255,255,${(s*.13).toFixed(3)})` : `rgba(60,0,0,${(-s*.16).toFixed(3)})`;
         x.fillRect(sx*k, 0, STEP*k+.6, H);
@@ -1386,10 +1432,9 @@ function buildSteps(L, mode){
   const mid = mode==="new" ? [{t:"match", items:it}] : [];
   return s.concat(mid, spread(pr), [{t:"speed"}]);
 }
-// Tone training, sentence listening and sentence building, using only this lesson's words.
+// Sentence listening and sentence building, using only this lesson's words.
 function extras(it){
   const out = [];
-  shuffle(it.filter(toneable)).slice(0,3).forEach(x=>out.push({t:"tone", it:x}));
   shuffle(it).slice(0,2).forEach(x=>out.push({t:"sentence", it:x}));
   shuffle(it.filter(buildable)).slice(0,2).forEach(x=>out.push({t:"build", it:x}));
   return out;
@@ -1398,7 +1443,7 @@ function extras(it){
 function startLesson(i, mode){
   const L = ALL[i];
   $("#combo").textContent = "";
-  Q = {L, mode, steps:buildSteps(L,mode), i:0, sel:null, checked:false, good:0, graded:0, combo:0, xp:0, retries:{}, fixAnnounced:false, t0:Date.now()};
+  Q = {L, mode, steps:buildSteps(L,mode), i:0, hist:[], view:null, live:null, sel:null, checked:false, good:0, graded:0, combo:0, xp:0, retries:{}, fixAnnounced:false, t0:Date.now()};
   audioCtx();
   if(V.ok){ try{ speechSynthesis.cancel(); }catch(e){} }
   try{ AUD.pause(); }catch(e){}
@@ -1445,6 +1490,7 @@ function resetBar(){
 function renderStep(){
   const st = cur(), it = st.it, L = Q.L;
   Q.sel = null; Q.checked = false;
+  $("#stage").classList.remove("review");
   setProgress(); resetBar();
   const tag = st.retry ? "Fix a mistake" : st.review ? "Quick review" : st.t==="tone" ? "Tone training" : st.t==="build" ? "Build the sentence" : st.t==="sentence" ? "Sentence listening" : null;
   const tagH = tag ? `<span class="pill"><span class="dot"></span>${tag}</span>` : "";
@@ -1527,10 +1573,12 @@ function renderStep(){
   const p = $("#primary"); p.textContent = primary; p.disabled = needSel;
   const hd = stage.querySelector(".qh"); if(hd){ hd.tabIndex = -1; hd.focus({preventScroll:true}); }
   if(say) speak(say, false, stage.querySelector(".main"));
+  backState();
 }
 
 function select(k){
   const st0 = Q && cur(); if(!st0) return;
+  if(Q.view!=null) return;
   if(st0.t==="speed") return speedPick(k);
   if(Q.checked) return;
   const st = st0; if(!st.opts || !st.opts[k]) return;
@@ -1557,7 +1605,7 @@ function check(){
   if(st.t==="context"){ const s = $("#sent .szh"); if(s) s.innerHTML = fullSentence(it); const j = $("#sent .sjp"); if(j){ j.innerHTML = jpHTML(it.ex.jp); j.hidden = false; } }
   if(st.t==="sentence"){ const r = $("#reveal"); if(r) r.hidden = false; const rb = $("[data-reveal]"); if(rb) rb.hidden = true; }
   showFeedback(ok, it);
-  setTimeout(()=>speak(st.t==="context" || st.t==="sentence" ? it.ex.zh : it.zh), 380);
+  clearTimeout(Q.sayT); Q.sayT = setTimeout(()=>speak(st.t==="context" || st.t==="sentence" ? it.ex.zh : it.zh), 380);
 }
 
 function showFeedback(ok, it, custom, line2){
@@ -1572,6 +1620,7 @@ function showFeedback(ok, it, custom, line2){
 
 function onPrimary(){
   if(!Q) return;
+  if(Q.view!=null) return lookForward();
   const st = cur();
   if(st.t==="start" || st.t==="intro") return next();
   if(st.t==="speed") return Q.checked ? next() : speedStart();
@@ -1585,10 +1634,78 @@ function onPrimary(){
   if(!Q.checked){ if(Q.sel==null) return; check(); } else next();
 }
 function next(){
+  hush();
+  const done = cur();
+  if(done && done.t!=="start" && done.t!=="speed"){
+    Q.hist.push({html:$("#stageIn").innerHTML, fb:$("#fb").innerHTML, cls:["good","bad"].filter(c=>$("#bar").classList.contains(c)), it:done.it});
+  }
   clearInterval(Q.mT); clearInterval(Q.spT); Q.sp = null; Q.m = null;
   Q.i++;
   if(Q.i >= Q.steps.length) return finish();
   renderStep();
+}
+
+/* ---------- Stop talking ---------- */
+// Pressing Continue (or going back) cuts off any reading that is still going, so it never runs into the next question.
+function hush(){
+  if(Q) clearTimeout(Q.sayT);
+  try{ AUD.onended = AUD.onerror = null; AUD.pause(); }catch(e){}
+  try{ if(V.ok) speechSynthesis.cancel(); }catch(e){}
+  document.querySelectorAll(".spk.on,.bigplay.on").forEach(b=>b.classList.remove("on"));
+  duck(false);
+}
+
+/* ---------- Looking back at earlier questions ----------
+   Every finished question is kept as it looked when answered. The back arrow pages through them,
+   read-only (the speaker buttons still play); Continue walks forward again to where the learner left off. */
+function speedLive(){ const st = cur(); return st && st.t==="speed" && Q.sp && !Q.checked; }
+function backState(){
+  const b = $("#backQ"); if(!b || !Q) return;
+  const at = Q.view==null ? Q.hist.length : Q.view;
+  b.hidden = !Q.hist.length || speedLive();
+  b.disabled = at <= 0;
+}
+function lookBack(){
+  if(!Q || !Q.hist.length || speedLive()) return;
+  if(Q.view===0) return;
+  hush();
+  if(Q.view==null){
+    const frag = document.createDocumentFragment(), si = $("#stageIn");
+    while(si.firstChild) frag.appendChild(si.firstChild);
+    const p = $("#primary");
+    Q.live = {frag, fb:$("#fb").innerHTML, cls:["good","bad"].filter(c=>$("#bar").classList.contains(c)),
+      ptxt:p.textContent, pdis:p.disabled, pcls:["ok","no"].filter(c=>p.classList.contains(c)), phid:p.hidden, ctx:$("#ctxBtn").hidden, peek:$("#barPeek").hidden,
+      scroll:$("#stage").scrollTop};
+    Q.view = Q.hist.length - 1;
+  } else Q.view--;
+  showLook();
+}
+function showLook(){
+  const h = Q.hist[Q.view], si = $("#stageIn"), n = Q.hist.length;
+  $("#stage").classList.add("review");
+  si.innerHTML = `<div class="lookback"><span class="pill"><span class="dot"></span>Looking back · ${Q.view+1} of ${n}</span></div>` + h.html;
+  si.querySelectorAll(".opt").forEach(b=>b.disabled = true);
+  si.querySelectorAll("[id]").forEach(e=>e.removeAttribute("id"));
+  $("#stage").scrollTop = 0;
+  const bar = $("#bar"); bar.classList.remove("good","bad"); h.cls.forEach(c=>bar.classList.add(c));
+  $("#fb").innerHTML = h.fb; $("#barPeek").hidden = true; $("#ctxBtn").hidden = true;
+  const p = $("#primary"); p.hidden = false; p.disabled = false; p.classList.remove("ok","no");
+  p.textContent = Q.view >= n-1 ? "Back to my question" : "Next";
+  backState();
+}
+function lookForward(){
+  hush();
+  if(Q.view < Q.hist.length-1){ Q.view++; return showLook(); }
+  // back to the live question, exactly as it was left
+  const L = Q.live, si = $("#stageIn");
+  si.innerHTML = ""; si.appendChild(L.frag);
+  $("#stage").classList.remove("review"); $("#stage").scrollTop = L.scroll;
+  const bar = $("#bar"); bar.classList.remove("good","bad"); L.cls.forEach(c=>bar.classList.add(c));
+  $("#fb").innerHTML = L.fb; $("#ctxBtn").hidden = L.ctx; $("#barPeek").hidden = L.peek;
+  const p = $("#primary"); p.textContent = L.ptxt; p.disabled = L.pdis; p.hidden = L.phid; p.classList.remove("ok","no"); L.pcls.forEach(c=>p.classList.add(c));
+  Q.view = null; Q.live = null;
+  const st = cur(); if(st && st.t==="match" && Q.m && !Q.checked) afterRender(st);
+  backState();
 }
 
 /* ---------- Context dialog ---------- */
@@ -1666,7 +1783,9 @@ document.addEventListener("click", e=>{
   if(t.closest("#primary")) return onPrimary();
   if(t.closest("#ctxBtn")) return openCtx();
   if(t.closest("#quit")) return $("#quitDlg").showModal();
-  if(t.closest("#quitYes")){ $("#quitDlg").close(); try{ speechSynthesis.cancel(); }catch(err){} if(Q){ clearInterval(Q.mT); clearInterval(Q.spT); } Q = null; show("home"); return; }
+  if(t.closest("#backQ")) return lookBack();
+  if(Q && Q.view!=null && t.closest("#stage") && (t.closest("[data-tile]") || t.closest("[data-ml]") || t.closest("[data-mr]") || t.closest("[data-reveal]"))) return;
+  if(t.closest("#quitYes")){ $("#quitDlg").close(); hush(); if(Q){ clearInterval(Q.mT); clearInterval(Q.spT); } Q = null; show("home"); return; }
   const tile = t.closest("[data-tile]"); if(tile){ tilePick(+tile.dataset.tile); return; }
   const ml = t.closest("[data-ml]"); if(ml){ matchPick("l", +ml.dataset.ml); return; }
   const mr = t.closest("[data-mr]"); if(mr){ matchPick("r", +mr.dataset.mr); return; }
@@ -1730,6 +1849,7 @@ document.addEventListener("keydown", e=>{
   if(!Q || $("#lesson").hidden || document.querySelector("dialog[open]")) return;
   if(e.metaKey || e.ctrlKey || e.altKey) return;
   if(/^[1-6]$/.test(e.key)){ select(+e.key-1); return; }
+  if(e.key==="ArrowLeft" && !e.target.closest("input,select,textarea") && !$("#backQ").hidden){ e.preventDefault(); lookBack(); return; }
   if(e.key==="Enter" && !e.target.closest("button")){ e.preventDefault(); onPrimary(); }
 });
 window.addEventListener("hashchange", route);
@@ -2091,6 +2211,7 @@ function speedStart(){
     <div class="sp-bar"><span id="spBar"></span></div><div id="spQ"></div></div>`;
   speedNext();
   clearInterval(Q.spT); Q.spT = setInterval(speedTick, 100);
+  hush(); backState();
 }
 function speedPool(){
   const own = Q.L.items, older = shuffle(ALL.slice(0, Q.L.i).flatMap(l=>l.items)).slice(0, 12);
@@ -2129,7 +2250,7 @@ function speedDone(){
     <span class="pill"><span class="dot"></span>Time's up</span>
     <h2 class="qh" style="font-size:clamp(30px,5.4vw,44px)"><span class="g">${sc}</span> right in 60 seconds</h2>
     <p class="lead">${best && prev!=null ? `New best! Your old record was ${prev}.` : best ? "That's your first record. Beat it next time!" : `Your best is ${prev}. So close!`} You earned ${sc*2} XP.</p></div>`;
-  Q.checked = true;
+  Q.checked = true; setTimeout(backState);
   if(best && sc > 0){ sfxWin(); sparkle($(".sp-done h2")); } else sfxGood();
   const p = $("#primary"); p.hidden = false; p.textContent = "Continue"; p.disabled = false; p.classList.add("ok"); p.focus({preventScroll:true});
 }
