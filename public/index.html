@@ -660,7 +660,10 @@ img{height:auto}
 .chip{flex:none}
 @media (max-width:520px){
   .top .wrap{flex-wrap:nowrap;gap:8px;padding-block:12px}
-  .brand{gap:8px;min-width:0}
+  /* the wordmark drops out by itself whenever the row is too full, so nothing ever overlaps */
+  .brand{gap:0 8px;min-width:38px;flex:0 1 auto;flex-wrap:wrap;align-content:flex-start;height:38px;overflow:hidden}
+  .brand img{flex:none}
+  .brand b{line-height:38px;padding-bottom:0;white-space:nowrap}
   .brand img{width:38px;height:38px;border-radius:12px}
   .brand b{font-size:20px}
   .chip{padding:5px 10px;font-size:14px;gap:5px}
@@ -668,7 +671,6 @@ img{height:auto}
   .icon-btn{width:38px;height:38px}
   .icon-btn svg{width:19px;height:19px}
 }
-@media (max-width:359px){.brand b{display:none}}
 
 /* listening card: Wunny the detective sits fully inside the card, top left */
 .listen .det{left:16px;top:16px;bottom:auto;width:76px;opacity:1}
