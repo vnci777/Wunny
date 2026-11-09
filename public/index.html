@@ -467,7 +467,7 @@ dialog[open]{animation:rise .25s ease both}
   <div class="set-row"><label for="setSlow">Slower voice<small>Good for catching the tones.</small></label><input type="checkbox" id="setSlow"></div>
   <div class="set-row"><label for="setSfx">Sound effects<small>Chimes for right and wrong answers.</small></label><input type="checkbox" id="setSfx"></div>
   <div class="set-row"><label for="setVoice">Voice<small id="vstat">Checking your device's voices…</small></label><select id="setVoice"></select></div>
-  <div class="set-row"><span class="vstat">Natural, Premium and Enhanced voices sound the most lively.</span><button class="ghost mini" type="button" id="testVoice">Test voice</button></div>
+  <div class="set-row"><span class="vstat">Wunny voices sound the same on every device.</span><button class="ghost mini" type="button" id="testVoice">Test voice</button></div>
   <div class="set-row" id="acctRow" hidden><span class="vstat" id="acctTxt"></span><button class="ghost mini" type="button" id="logout">Log out</button></div>
   <div id="resetArea" class="row"><button class="ghost mini danger" type="button" id="resetAsk">Reset progress</button></div>
 </div></dialog>
@@ -689,11 +689,43 @@ if(V.ok){
   setTimeout(()=>{ if(V.status==="checking"){ pickVoice(); if(V.status==="checking"){ V.status="none"; renderVoiceBits(); } } }, 1800);
 } else V.status = "unsupported";
 
+/* Wunny voices: natural Cantonese voices served by the site (/api/tts). Used when the site has them switched on. */
+const CLOUD_VOICES = [{id:"hiugaai", name:"Hiu Gaai", note:"bright, female"}, {id:"hiumaan", name:"Hiu Maan", note:"warm, female"}, {id:"wanlung", name:"Wan Lung", note:"male"}];
+function cloudChoice(){
+  if(!V.cloud) return null;
+  const v = S.set.voice || "";
+  if(v.startsWith("cloud:")) return CLOUD_VOICES.find(c=>"cloud:"+c.id===v) || CLOUD_VOICES[0];
+  if(v && V.list.some(x=>x.name===v)) return null;
+  return CLOUD_VOICES[0];
+}
+const AUD = new Audio(); AUD.preload = "auto";
+const ttsURL = (text, rate, id) => `${API}/tts?voice=${id}&rate=${rate}&text=${encodeURIComponent(text)}`;
+const rateFor = slow => slow ? "slow" : (S.set.slow ? "calm" : "normal");
+function warmVoices(texts){
+  const c = cloudChoice(); if(!c) return;
+  texts.forEach(t=>fetch(ttsURL(t, rateFor(false), c.id)).catch(()=>{}));
+}
 function speak(text, slow=false, btn=null){
+  if(!text) return;
+  document.querySelectorAll(".spk.on,.bigplay.on").forEach(b=>b.classList.remove("on"));
+  const c = cloudChoice();
+  if(!c) return deviceSpeak(text, slow, btn);
+  try{ if(V.ok) speechSynthesis.cancel(); }catch(e){}
+  const done = () => { if(btn) btn.classList.remove("on"); };
+  try{
+    AUD.pause();
+    AUD.onended = done;
+    AUD.onerror = () => { done(); deviceSpeak(text, slow, btn); };
+    AUD.src = ttsURL(text, rateFor(slow), c.id);
+    if(btn) btn.classList.add("on");
+    const p = AUD.play();
+    if(p && p.catch) p.catch(err => { if(err && err.name==="AbortError") return; done(); deviceSpeak(text, slow, btn); });
+  }catch(e){ done(); deviceSpeak(text, slow, btn); }
+}
+function deviceSpeak(text, slow=false, btn=null){
   if(!V.ok || !text) return;
   try{
     speechSynthesis.cancel();
-    document.querySelectorAll(".spk.on,.bigplay.on").forEach(b=>b.classList.remove("on"));
     const u = new SpeechSynthesisUtterance(text);
     u.lang = "zh-HK"; if(V.voice) u.voice = V.voice;
     u.rate = slow ? 0.62 : (S.set.slow ? 0.82 : 1);
@@ -770,7 +802,7 @@ function weekHTML(){
   return `<ol class="week" aria-label="This week">${h}</ol>`;
 }
 function voiceNoteHTML(){
-  if(V.status!=="none" && V.status!=="unsupported") return "";
+  if(V.cloud || (V.status!=="none" && V.status!=="unsupported")) return "";
   return `<div class="note" id="vnote"><img src="${ART.detective}" alt="">
     <div><h3>Add a Cantonese voice to hear Wunny</h3>
     <p>${V.status==="unsupported" ? "This browser can't play speech. Try Chrome, Safari or Edge." : "Your device doesn't have a Cantonese (Hong Kong) voice yet. Add one, then reload this page."}</p>
@@ -781,12 +813,15 @@ function voiceNoteHTML(){
     <li>Best of all: Microsoft Edge on a computer has natural-sounding Cantonese voices built in.</li></ul></div></div>`;
 }
 function renderVoiceBits(){
-  const vs = $("#vstat");
-  if(vs) vs.textContent = V.status==="ready" ? `Using ${V.voice.name}` : V.status==="checking" ? "Checking your device's voices…" : V.status==="unsupported" ? "This browser can't play speech." : "No Cantonese voice found on this device.";
+  const c = cloudChoice(), vs = $("#vstat");
+  if(vs) vs.textContent = c ? `Using ${c.name}, a Wunny voice` : V.status==="ready" ? `Using ${V.voice.name}` : V.status==="checking" ? "Checking your device's voices…" : V.status==="unsupported" ? "This browser can't play speech." : "No Cantonese voice found on this device.";
   const sel = $("#setVoice");
   if(sel){
-    sel.innerHTML = V.list.length ? V.list.map(v=>`<option value="${esc(v.name)}"${V.voice===v?" selected":""}>${esc(v.name)}</option>`).join("") : `<option>None found</option>`;
-    sel.disabled = !V.list.length;
+    const cur = c ? "cloud:" + c.id : (V.voice ? V.voice.name : "");
+    const cloud = V.cloud ? `<optgroup label="Wunny voices">${CLOUD_VOICES.map(v=>`<option value="cloud:${v.id}"${cur==="cloud:"+v.id ? " selected" : ""}>${v.name} · ${v.note}</option>`).join("")}</optgroup>` : "";
+    const dev = V.list.length ? `<optgroup label="Voices on this device">${V.list.map(v=>`<option value="${esc(v.name)}"${cur===v.name ? " selected" : ""}>${esc(v.name)}</option>`).join("")}</optgroup>` : "";
+    sel.innerHTML = (cloud + dev) || `<option>None found</option>`;
+    sel.disabled = !(V.cloud || V.list.length);
   }
   const slot = $("#vslot"); if(slot) slot.innerHTML = voiceNoteHTML();
 }
@@ -917,6 +952,8 @@ function startLesson(i, mode){
   Q = {L, mode, steps:buildSteps(L,mode), i:0, sel:null, checked:false, good:0, graded:0, combo:0, xp:0, retries:{}, fixAnnounced:false, t0:Date.now()};
   audioCtx();
   if(V.ok){ try{ speechSynthesis.cancel(); }catch(e){} }
+  try{ AUD.pause(); }catch(e){}
+  warmVoices(L.items.flatMap(x=>[x.zh, x.ex.zh]));
   show("lesson");
   renderStep();
 }
@@ -1168,8 +1205,10 @@ function openSettings(){
 }
 [["setAuto","auto"],["setSlow","slow"],["setSfx","sfx"]].forEach(([id,k])=>$("#"+id).addEventListener("change", e=>{ S.set[k] = e.target.checked; save(); }));
 $("#setVoice").addEventListener("change", e=>{
-  const v = V.list.find(x=>x.name===e.target.value); if(!v) return;
-  V.voice = v; S.set.voice = v.name; save(); renderVoiceBits(); speak("你好，我係浣熊！");
+  const val = e.target.value;
+  if(val.startsWith("cloud:")) S.set.voice = val;
+  else { const v = V.list.find(x=>x.name===val); if(!v) return; V.voice = v; S.set.voice = v.name; }
+  save(); renderVoiceBits(); speak("你好，我係浣熊！");
 });
 
 document.addEventListener("keydown", e=>{
@@ -1424,7 +1463,8 @@ async function resetPassword(f){
 async function boot(){
   AUTH.token = lsGet(TOKEN_KEY);
   renderHome();
-  try{ const h = await api("/health"); AUTH.on = !!(h && h.ok); }catch(e){ AUTH.on = false; }
+  try{ const h = await api("/health"); AUTH.on = !!(h && h.ok); V.cloud = !!(h && h.voices); }catch(e){ AUTH.on = false; }
+  renderVoiceBits();
   if(!AUTH.on) return;
   if(AUTH.token){
     try{ const r = await api("/me"); AUTH.profile = r.user; mergeProgress(r.progress); if(!$("#home").hidden) renderHome(); return; }

@@ -50,7 +50,47 @@ async function readBody(req) {
   }
 }
 
-export function makeHandler(store) {
+// Natural Cantonese voices (Microsoft Azure Speech). Turned on by the AZURE_SPEECH_KEY and AZURE_SPEECH_REGION settings.
+const VOICES = { hiugaai: "zh-HK-HiuGaaiNeural", hiumaan: "zh-HK-HiuMaanNeural", wanlung: "zh-HK-WanLungNeural" };
+const RATES = { normal: "0%", calm: "-15%", slow: "-35%" };
+const escXml = (t) => t.replace(/[<>&'"]/g, (c) => ({ "<": "&lt;", ">": "&gt;", "&": "&amp;", "'": "&apos;", '"': "&quot;" })[c]);
+const audio = (buf) =>
+  new Response(buf, { status: 200, headers: { "content-type": "audio/mpeg", "cache-control": "public, max-age=31536000, immutable" } });
+
+export function makeHandler(store, getEnv = () => undefined) {
+  const voicesOn = () => Boolean(getEnv("AZURE_SPEECH_KEY") && getEnv("AZURE_SPEECH_REGION"));
+
+  async function speech(url) {
+    if (!voicesOn()) return json(503, { error: "Wunny voices aren't switched on yet." });
+    const voice = VOICES[url.searchParams.get("voice")];
+    const rate = RATES[url.searchParams.get("rate")] || RATES.normal;
+    const text = (url.searchParams.get("text") || "").trim();
+    // Only short Cantonese course text: keeps the voice service from being used for anything else.
+    if (!voice || !text || text.length > 120 || !/[\u3400-\u9fff]/.test(text) || (text.match(/[A-Za-z]/g) || []).length > 16)
+      return json(400, { error: "That can't be spoken." });
+    const key = "tts/" + crypto.createHash("sha256").update(`${voice}|${rate}|${text}`).digest("hex");
+    const cached = await store.get(key, { type: "arrayBuffer" });
+    if (cached) return audio(cached);
+    const ssml = `<speak version="1.0" xml:lang="zh-HK"><voice name="${voice}"><prosody rate="${rate}">${escXml(text)}</prosody></voice></speak>`;
+    const r = await fetch(`https://${getEnv("AZURE_SPEECH_REGION")}.tts.speech.microsoft.com/cognitiveservices/v1`, {
+      method: "POST",
+      headers: {
+        "Ocp-Apim-Subscription-Key": getEnv("AZURE_SPEECH_KEY"),
+        "Content-Type": "application/ssml+xml",
+        "X-Microsoft-OutputFormat": "audio-24khz-48kbitrate-mono-mp3",
+        "User-Agent": "wunny",
+      },
+      body: ssml,
+    });
+    if (!r.ok) {
+      console.error("speech service", r.status, await r.text().catch(() => ""));
+      return json(502, { error: "The voice service didn't answer." });
+    }
+    const buf = await r.arrayBuffer();
+    await store.set(key, buf);
+    return audio(buf);
+  }
+
   const userKey = (name) => "users/" + name;
   const sessionKey = (token) => "sessions/" + token;
   const getUser = (name) => store.get(userKey(name), { type: "json" });
@@ -79,7 +119,8 @@ export function makeHandler(store) {
     const path = new URL(req.url).pathname.replace(/^\/api/, "").replace(/\/+$/, "");
     const method = req.method;
     try {
-      if (path === "/health") return json(200, { ok: true });
+      if (path === "/health") return json(200, { ok: true, voices: voicesOn() });
+      if (path === "/tts" && method === "GET") return speech(new URL(req.url));
 
       if (path === "/signup" && method === "POST") {
         const b = await readBody(req);
