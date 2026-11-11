@@ -188,6 +188,29 @@ export function makeHandler(store, getEnv = () => undefined) {
         return json(200, { ok: true });
       }
 
+      // "Forgot your password?" on the log-in screen: tells the admins, without saying whether the account exists.
+      if (path === "/forgot" && method === "POST") {
+        const b = await readBody(req);
+        if (b.website) return json(200, { ok: true });
+        const username = String(b.username || "").trim().toLowerCase();
+        const reach = String(b.reach || "").trim().slice(0, 120);
+        if (!USERNAME.test(username)) return json(400, { error: "Type the username you signed up with: lowercase letters only, like janedoe." });
+        const { blobs } = await store.list({ prefix: "messages/" });
+        const recent = Date.now() - 10 * 60e3;
+        for (const x of blobs) {
+          const t = Number(x.key.slice(9).split("-")[0]);
+          if (t > recent) { const m = await store.get(x.key, { type: "json" }); if (m && m.kind === "password" && m.username === username) return json(200, { ok: true }); }
+        }
+        const exists = !!(await getUser(username));
+        const id = Date.now() + "-" + crypto.randomBytes(4).toString("hex");
+        await store.setJSON("messages/" + id, {
+          id, kind: "password", name: "Password help", username, reach, exists,
+          message: `${username} forgot their password and asked for a reset.${reach ? " Reach them at: " + reach : ""}`,
+          created: Date.now(),
+        });
+        return json(200, { ok: true });
+      }
+
       const auth = await authenticate(req);
       if (!auth) return json(401, { error: "Please log in again." });
       const me = auth.user;
@@ -240,6 +263,16 @@ export function makeHandler(store, getEnv = () => undefined) {
           target.progress = null;
           target.epoch = (target.epoch || 0) + 1;
           await putUser(target);
+          return json(200, { ok: true });
+        }
+
+        if (path === "/admin/delete-user" && method === "POST") {
+          const b = await readBody(req);
+          const name = String(b.username || "");
+          if (isAdmin(name)) return json(403, { error: "Admin accounts can't be deleted here." });
+          const target = USERNAME.test(name) ? await getUser(name) : null;
+          if (!target) return json(404, { error: "There's no learner with that username." });
+          await store.delete(userKey(name));
           return json(200, { ok: true });
         }
 
