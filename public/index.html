@@ -1067,6 +1067,7 @@ const slowBtn = text => `<button class="slow" type="button" data-say="${esc(text
 const KEY = "wunny.cantonese.v1";
 const DEF = {streak:0, best:0, last:null, days:[], done:{}, ch:{}, sp:{}, epoch:0, xp:0, time:0, log:[], set:{auto:true, sfx:true, slow:false, bgmv:2, vol:{master:.9, bgm:.05, voice:1, sys:.8}}};
 let S = load();
+if(S.cur){ S.log = mergeLogs(S.log, [S.cur]); delete S.cur; }
 // Settings saved before the volume sliders existed: "sound effects off" becomes system sounds at 0.
 function normSet(o){
   o = o || {};
@@ -1540,9 +1541,11 @@ function extras(it){
 }
 
 function startLesson(i, mode){
+  bankTime();
+  if(Q && !Q.logged && Q.act >= 1) logSession({q:1, n:Math.round(Q.i/Q.steps.length*100)});
   const L = ALL[i];
   $("#combo").textContent = "";
-  Q = {L, mode, steps:buildSteps(L,mode), i:0, hist:[], view:null, live:null, sel:null, checked:false, good:0, graded:0, combo:0, xp:0, retries:{}, fixAnnounced:false, t0:Date.now()};
+  Q = {L, mode, steps:buildSteps(L,mode), i:0, hist:[], view:null, live:null, sel:null, checked:false, good:0, graded:0, combo:0, xp:0, retries:{}, fixAnnounced:false, t0:Date.now(), act:0};
   audioCtx();
   if(V.ok){ try{ speechSynthesis.cancel(); }catch(e){} }
   try{ AUD.pause(); }catch(e){}
@@ -1558,10 +1561,26 @@ function adminSkip(){
   if(Q.sp) clearTimeout(Q.sp.cdT);
   hush(); next();
 }
+// One entry per lesson played. "s" is the time the lesson was actually on screen, in seconds.
 function logSession(extra){
-  if(!Q) return;
-  const secs = Math.round((Date.now()-Q.t0)/1000);
-  S.log = (S.log||[]).concat({i:Q.L.i, m:Q.mode, at:Q.t0, s:secs, ...extra}).slice(-200);
+  if(!Q || Q.logged) return;
+  bankTime(); Q.logged = true; delete S.cur;
+  S.log = mergeLogs(S.log, [{i:Q.L.i, m:Q.mode, at:Q.t0, s:Math.round(Q.act || 0), ...extra}]);
+}
+// While a lesson is open, keep a note of it, so time still counts if the app is closed mid-lesson.
+function noteLesson(){
+  if(!Q || Q.logged || $("#lesson").hidden) return;
+  S.cur = {i:Q.L.i, m:Q.mode, at:Q.t0, s:Math.round(Q.act || 0), q:1, n:Math.round(Q.i/Q.steps.length*100)};
+}
+// A lesson note left behind by a closed app becomes a "left early" entry.
+function settleCur(){
+  if(!S.cur || (Q && Q.t0===S.cur.at && !Q.logged)) return;
+  S.log = mergeLogs(S.log, [S.cur]); delete S.cur;
+}
+function mergeLogs(a, b){
+  const m = new Map();
+  [...(a||[]), ...(b||[])].forEach(e=>{ if(e && e.at!=null) m.set(e.at + "|" + e.i, e); });
+  return [...m.values()].sort((x,y)=>x.at-y.at).slice(-200);
 }
 
 const HARD = () => Q && Q.mode==="challenge";
@@ -2147,7 +2166,15 @@ function mergeProgress(p, epoch){
   if(p && typeof p === "object"){
     const a = rank(p), b = rank(S);
     const accountAhead = a[0] > b[0] || (a[0] === b[0] && (a[1] > b[1] || (a[1] === b[1] && a[2] >= b[2])));
-    if(accountAhead){ S = {...DEF, ...p, done:{...(p.done||{})}, days:[...(p.days||[])], set:normSet(p.set)}; saveLocal(); return; }
+    // Time and lesson history from both copies are kept, whichever copy wins.
+    const time = Math.max(p.time || 0, S.time || 0), log = mergeLogs(p.log, S.log), cur = S.cur || p.cur;
+    const extra = time > (p.time || 0) || log.length > (p.log || []).length;
+    if(accountAhead){
+      S = {...DEF, ...p, done:{...(p.done||{})}, days:[...(p.days||[])], set:normSet(p.set), time, log};
+      if(cur) S.cur = cur; else delete S.cur;
+      settleCur(); saveLocal(); if(extra || S.log.length > log.length) syncUp(); return;
+    }
+    S.time = time; S.log = log; settleCur();
   }
   syncUp();
 }
@@ -2782,18 +2809,52 @@ async function resetPassword(f){
 }
 
 /* ---------- Time on Wunny ---------- */
-let lastAct = Date.now(), tSync = 0;
-["pointerdown","keydown","wheel","touchstart"].forEach(ev=>document.addEventListener(ev, ()=>{ lastAct = Date.now(); }, {passive:true, capture:true}));
+// Counts the real seconds the page is on screen: always during a lesson, and elsewhere while the learner is active.
+// Phones (iPhones especially) freeze a page the moment it's hidden, so time is banked and sent right then.
+let lastAct = Date.now(), tMark = Date.now(), tUnsent = 0, lastPush = 0;
+["pointerdown","keydown","wheel","touchstart","scroll"].forEach(ev=>document.addEventListener(ev, ()=>{ lastAct = Date.now(); }, {passive:true, capture:true}));
+function bankTime(){
+  const now = Date.now(), d = Math.min(30, Math.max(0, (now - tMark) / 1000)); tMark = now;
+  const inLesson = Q && !Q.logged && !$("#lesson").hidden;
+  if(!inLesson && now - lastAct > 120000) return;
+  S.time = Math.round(((S.time || 0) + d) * 10) / 10; tUnsent += d;
+  if(inLesson) Q.act = (Q.act || 0) + d;
+}
 setInterval(()=>{
-  const inLesson = Q && !$("#lesson").hidden;
-  if(document.hidden || (!inLesson && Date.now() - lastAct > 120000)) return;
-  S.time = (S.time || 0) + 15; tSync += 15;
-  if(tSync >= 120 && AUTH.profile){ tSync = 0; save(); } else saveLocal();
+  if(document.hidden) return;
+  bankTime(); noteLesson();
+  if(tUnsent >= 60 && AUTH.profile){ tUnsent = 0; save(); } else saveLocal();
 }, 15000);
+// Sends progress even while the page is closing (a normal request can be cut off).
+function pushNow(){
+  if(!AUTH.on || !AUTH.profile || !AUTH.token || Date.now() - lastPush < 1000) return;
+  lastPush = Date.now(); clearTimeout(syncT);
+  const opts = {method:"PUT", headers:{"Content-Type":"application/json", Authorization:"Bearer " + AUTH.token}, body:JSON.stringify({progress:S, epoch:S.epoch||0})};
+  try{ fetch(API + "/progress", {...opts, keepalive:true}).catch(()=>{}); }catch(e){ try{ fetch(API + "/progress", opts).catch(()=>{}); }catch(e2){} }
+}
+function flushTime(){ bankTime(); noteLesson(); saveLocal(); tUnsent = 0; pushNow(); }
+document.addEventListener("visibilitychange", ()=>{ if(document.hidden) flushTime(); else { tMark = Date.now(); freshCheck(); } });
+window.addEventListener("pagehide", flushTime);
+window.addEventListener("pageshow", e=>{ if(e.persisted){ tMark = Date.now(); freshCheck(); } });
+
+/* ---------- Newer version check ---------- */
+// Phones can keep an old copy of Wunny open for days. When a newer version is out, reload into it
+// (never in the middle of a lesson or an open window).
+let BUILD = null, buildAt = 0;
+async function buildId(){ try{ const r = await fetch(API + "/version", {cache:"no-store"}); return r.ok ? ((await r.json()).v || null) : null; }catch(e){ return null; } }
+async function freshCheck(){
+  if(Date.now() - buildAt < 5*60*1000) return;
+  buildAt = Date.now();
+  const v = await buildId(); if(!v) return;
+  if(!BUILD){ BUILD = v; return; }
+  if(v === BUILD || (Q && !Q.logged && !$("#lesson").hidden) || document.querySelector("dialog[open]")) return;
+  flushTime(); setTimeout(()=>location.reload(), 400);
+}
 
 /* ---------- Start ---------- */
 async function boot(){
   dayWatch();
+  buildId().then(v=>{ if(v && !BUILD){ BUILD = v; buildAt = Date.now(); } });
   AUTH.token = lsGet(TOKEN_KEY);
   renderHome();
   try{ const h = await api("/health"); AUTH.on = !!(h && h.ok); V.cloud = !!(h && h.voices); }catch(e){ AUTH.on = false; }
