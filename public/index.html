@@ -979,13 +979,15 @@ img{height:auto}
 .sp-runner>*{width:100%;height:100%}
 .sp-lane::after{content:"";position:absolute;right:0;bottom:2px;width:26px;height:34px;background:repeating-conic-gradient(#0b1b33 0 25%,#fff 0 50%) 0 0/13px 13px;border-radius:4px;opacity:.85}
 
+.allhist .who{font-weight:750;color:var(--blue-d);padding:0;min-height:0}
 /* ===== bonus lesson ===== */
 .lrow.bonus .node{background:linear-gradient(135deg,#0b1b33,#27406b);border-color:transparent;color:#ffd04d}
 .lrow.bonus.openb .node{background:var(--grad-bad);color:#fff}
 .lrow.bonus .ltxt span{white-space:normal}
 .lrow.bonus .mini{display:inline-flex;align-items:center;justify-content:center;gap:6px;line-height:1;white-space:nowrap}
 .lrow.bonus .mini svg{width:15px;height:15px;flex:none;display:block}
-.lrow.bonus .node{overflow:visible}
+.lrow.bonus .node{overflow:visible;border-color:transparent!important;background-origin:border-box!important;background-clip:border-box!important}
+.lrow.bonus.openb .node{background:var(--grad-bad) border-box!important;color:#fff;box-shadow:0 3px 0 #b3243a}
 .lrow.bonus .node svg{width:20px;height:20px;display:block}
 .lrow.bonus.openb{border-radius:20px;padding:10px 12px;margin:0;background:linear-gradient(110deg,#ffe3df 0%,#fff0e6 55%,#fff8ee 100%);border:1px solid var(--bad-line);box-shadow:0 3px 0 var(--bad-line)}
 .lrow.bonus.openb .ltxt b{background:var(--grad-bad);-webkit-background-clip:text;background-clip:text;color:transparent}
@@ -1076,6 +1078,19 @@ img{height:auto}
 .mixnote h3{margin:0;font-size:16.5px;letter-spacing:-.02em}
 .mixnote p{margin:4px 0 0;font-size:14px;color:#5b4a1e;line-height:1.5}
 .mixnote [lang]{font-family:var(--f-han);font-weight:700}
+
+/* ===== videos you can't pause or zoom, with a hover lift ===== */
+.nomanip{touch-action:pan-y;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+.nomanip video{pointer-events:none}
+.intro-vid{transition:transform .35s cubic-bezier(.2,.8,.2,1),box-shadow .35s}
+.intro-vid::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;box-shadow:inset 0 0 0 0 rgba(58,167,255,0);transition:box-shadow .35s}
+@media (hover:hover){.intro-vid:hover{transform:translateY(-4px);box-shadow:0 60px 100px -40px rgba(22,119,242,.75),0 0 0 1px rgba(255,255,255,.7)}.intro-vid:hover::after{box-shadow:inset 0 0 0 3px rgba(58,167,255,.65)}}
+.snd-on{position:absolute;left:50%;bottom:18px;transform:translateX(-50%);display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 18px;border:0;border-radius:999px;background:rgba(11,27,51,.72);color:#fff;font:inherit;font-weight:750;font-size:15px;backdrop-filter:blur(6px);cursor:pointer;animation:livePulse 1.8s ease-out infinite}
+.snd-on svg{width:18px;height:18px}
+.fvid-box{position:relative;aspect-ratio:16/9;border-radius:18px;overflow:hidden;background:#eaf3ff;border:1px solid var(--line);margin-bottom:4px;transition:transform .35s cubic-bezier(.2,.8,.2,1),box-shadow .35s,border-color .35s}
+.fvid{width:100%;height:100%;object-fit:cover;display:block}
+@media (hover:hover){.fvid-box:hover{transform:translateY(-4px) scale(1.015);border-color:var(--sky);box-shadow:0 26px 40px -22px rgba(22,119,242,.7)}}
+.founder.j .fvid-box:hover{border-color:#8f7bff}
 
 /* ===== terms and privacy: Lawyer Wunny ===== */
 .legal-grid{display:grid;grid-template-columns:minmax(0,1fr);gap:24px;align-items:start}
@@ -1241,7 +1256,8 @@ img{height:auto}
 <dialog id="groupDlg" aria-labelledby="groupTitle"><div class="dlg" id="groupIn"></div></dialog>
 <dialog id="boardDlg" aria-labelledby="boardTitle"><div class="dlg" id="boardIn"></div></dialog>
 <dialog id="introDlg" aria-label="Meet Wunny: a short video"><div class="intro-box">
-  <div class="intro-vid"><video id="introVid" playsinline controls preload="none" poster="video/wunny-intro.jpg"></video></div>
+  <div class="intro-vid nomanip"><video id="introVid" playsinline preload="none" poster="video/wunny-intro-1080.jpg" disablepictureinpicture disableremoteplayback controlslist="nodownload nofullscreen noplaybackrate noremoteplayback" tabindex="-1"></video>
+    <button class="snd-on" id="introSound" type="button" hidden><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H3v6h3l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13"/></svg>Turn sound on</button></div>
   <div class="intro-row"><p>Welcome to Wunny. Here's the 30-second tour.</p>
     <button class="skipbtn" type="button" id="introSkip">Skip<svg viewBox="0 0 24 24" aria-hidden="true" fill="currentColor"><path d="M5 5.5v13l9-6.5zM14 5.5v13l7-6.5z"/></svg></button></div>
 </div></dialog>
@@ -2927,7 +2943,7 @@ function footerHTML(){
     </div>
     <div class="sf-brand"><img src="${ART.logo}" alt=""><div><b>Wunny</b><span>10 minutes of Cantonese a day</span></div></div>
     <nav class="sf-links" aria-label="Footer">
-      <a href="#words">Word bank</a><a href="#dictionary">Dictionary</a><a href="#tones">Tones guide</a><a href="#about">About</a><a href="#contact">Contact</a><a href="#terms">Terms</a><a href="#privacy">Privacy</a>
+      <a href="#about">About</a><a href="#contact">Contact</a><a href="#terms">Terms</a><a href="#privacy">Privacy</a>
       <a href="${INSTAGRAM}" target="_blank" rel="noopener">${IC.insta}Instagram</a>
       <a href="${LINKEDIN}" target="_blank" rel="noopener">${IC.linkedin}LinkedIn</a></nav>
     <p class="sf-copy">© ${new Date().getFullYear()} Wunny</p>
@@ -3001,7 +3017,7 @@ const PAGES = {
         <div class="fbox wide"><small>Both of us</small><b>Native Cantonese speakers</b></div>
       </div>
       <div class="f-cols">
-        <article class="founder v"><div class="f-head"><span class="f-av" aria-hidden="true">V</span><div><h3>Vinci L.</h3><span>Co-founder</span></div></div>
+        <article class="founder v"><div class="fvid-box nomanip"><video class="fvid" src="video/vinci.mp4" poster="video/vinci.jpg" muted loop playsinline autoplay preload="metadata" disablepictureinpicture disableremoteplayback controlslist="nodownload nofullscreen noplaybackrate noremoteplayback" tabindex="-1" aria-hidden="true"></video></div><div class="f-head"><span class="f-av" aria-hidden="true">V</span><div><h3>Vinci L.</h3><span>Co-founder</span></div></div>
           <div class="f-grid">
             <div class="fbox"><small>Speaks</small><b>Native Cantonese</b></div>
             <div class="fbox"><small>Grew up in</small><b>Hong Kong</b></div>
@@ -3009,7 +3025,7 @@ const PAGES = {
             <div class="fbox like full"><small>Favourite thing about Hong Kong</small><b>Hong Kong-style milk tea</b></div>
             <div class="fbox nope full"><small>Least favourite</small><b>Hong Kong's overpopulation</b></div>
           </div></article>
-        <article class="founder j"><div class="f-head"><span class="f-av" aria-hidden="true">J</span><div><h3>Janis L.</h3><span>Co-founder</span></div></div>
+        <article class="founder j"><div class="fvid-box nomanip"><video class="fvid" src="video/janis.mp4" poster="video/janis.jpg" muted loop playsinline autoplay preload="metadata" disablepictureinpicture disableremoteplayback controlslist="nodownload nofullscreen noplaybackrate noremoteplayback" tabindex="-1" aria-hidden="true"></video></div><div class="f-head"><span class="f-av" aria-hidden="true">J</span><div><h3>Janis L.</h3><span>Co-founder</span></div></div>
           <div class="f-grid">
             <div class="fbox"><small>Speaks</small><b>Native Cantonese</b></div>
             <div class="fbox"><small>Grew up in</small><b>Vancouver, BC</b></div>
@@ -3193,6 +3209,23 @@ function adminTable(){
       <td>${l.s.live}</td><td>${l.s.best}</td><td>${l.s.xp}</td><td>${fmtDur(l.s.time)}</td><td>${l.s.days}</td><td>${fmtDay(l.s.last)}</td><td>${fmtDate(l.created)}</td>
       <td><button class="ghost mini" type="button" data-learner="${esc(l.username)}">Details</button></td></tr>`).join("")}</tbody></table>`;
 }
+let histQ = "", histN = 60;
+function allHist(){
+  return LEARNERS.flatMap(l=>((l.progress && l.progress.log) || []).map(e=>({...e, who:l.username}))).sort((a,b)=>b.at-a.at);
+}
+function lessonName(i){ return i===ALL.length ? (BONUS ? "Bonus: " + BONUS.t : "Bonus lesson") : ALL[i] ? (i+1) + ". " + ALL[i].t : "Lesson " + (i+1); }
+function allHistHTML(){
+  const rows = allHist().filter(e=>!histQ || e.who.includes(histQ));
+  if(!rows.length) return `<li><span class="muted">${histQ ? "No history for that username." : "No lessons recorded yet."}</span></li>`;
+  return rows.slice(0, histN).map(e=>{ const kind = e.q ? "q" : e.m==="challenge" ? "ch" : "";
+    return `<li><span class="when">${fmtDT(e.at)}</span><span><button class="linkish who" type="button" data-learner="${esc(e.who)}">${esc(e.who)}</button> · ${esc(lessonName(e.i))} <span class="tagq ${kind}">${e.q ? `Left at ${e.n||0}%` : (MODE_NAME[e.m] || "Lesson")}</span></span>
+      <span class="muted">${fmtDur(e.s)}${e.a!=null ? ` · ${e.a}%` : ""}${e.x ? ` · +${e.x} XP` : ""}</span></li>`; }).join("")
+    + (rows.length > histN ? `<li><button class="ghost mini" type="button" id="histMore">Show more (${rows.length - histN} left)</button></li>` : "");
+}
+document.addEventListener("input", e=>{ if(e.target.id==="histSearch"){ histQ = e.target.value.trim().toLowerCase(); histN = 60; const u = $("#allHist"); if(u) u.innerHTML = allHistHTML(); } });
+document.addEventListener("click", e=>{
+  if(e.target.closest("#histMore")){ histN += 100; $("#allHist").innerHTML = allHistHTML(); return; }
+});
 function renderAdmin(){
   const all = LEARNERS.map(l=>lstats(l.progress)), n = all.length;
   const tile = (v,l) => `<div class="tile"><b>${v}</b><span>${l}</span></div>`;
@@ -3207,7 +3240,12 @@ function renderAdmin(){
         <input class="inp" id="adminSearch" type="search" placeholder="Search usernames" value="${esc(adminQ)}" autocapitalize="none" spellcheck="false">
         <button class="ghost mini" type="button" id="adminRefresh">Refresh</button></div>
       <div class="tbl-wrap rise" style="--i:3" id="adminTbl">${adminTable()}</div>
-      <section class="rise" style="--i:4"><h2 class="admin-h2">Messages <span class="badge" id="msgCount">${MESSAGES.length}</span></h2>
+      <section class="rise" style="--i:4"><h2 class="admin-h2">Learning history <span class="badge">${allHist().length}</span></h2>
+        <p class="lead" style="margin:4px 0 12px">Every lesson anyone has played, newest first. Tap a name to open that learner.</p>
+        <div class="tbar"><label class="sr" for="histSearch">Filter history by username</label>
+          <input class="inp" id="histSearch" type="search" placeholder="Filter by username" value="${esc(histQ)}" autocapitalize="none" spellcheck="false"></div>
+        <ul class="hist allhist" id="allHist">${allHistHTML()}</ul></section>
+      <section class="rise" style="--i:5"><h2 class="admin-h2">Messages <span class="badge" id="msgCount">${MESSAGES.length}</span></h2>
         <p class="lead" style="margin:4px 0 12px">Sent through the Contact page and the “Forgot your password?” button.</p>
         <div class="msgs" id="adminMsgs">${messagesHTML()}</div></section>
     </main>`;
@@ -3235,7 +3273,7 @@ function openLearner(name){
   }).join("");
   const hist = log.slice().reverse().map(e=>{
     const L = ALL[e.i], kind = e.q ? "q" : e.m==="challenge" ? "ch" : "";
-    return `<li><span class="when">${fmtDT(e.at)}</span><span>${L ? esc((L.i+1) + ". " + L.t) : "Lesson " + (e.i+1)} <span class="tagq ${kind}">${e.q ? `Left at ${e.n||0}%` : (MODE_NAME[e.m] || "Lesson")}</span></span>
+    return `<li><span class="when">${fmtDT(e.at)}</span><span>${esc(lessonName(e.i))} <span class="tagq ${kind}">${e.q ? `Left at ${e.n||0}%` : (MODE_NAME[e.m] || "Lesson")}</span></span>
       <span class="muted">${fmtDur(e.s)}${e.a!=null ? ` · ${e.a}%` : ""}${e.x ? ` · +${e.x} XP` : ""}</span></li>`;
   }).join("") || `<li><span class="muted">No lessons recorded yet. History is kept from November 11, 2026.</span></li>`;
   $("#lrnIn").innerHTML = `<div class="dlg-h"><h2 id="lrnTitle">${esc(l.username)}${l.admin ? '<span class="badge">Admin</span>' : ""}</h2>
@@ -3405,20 +3443,33 @@ function openIntro(then){
   if(!d || d.open) return;
   if(document.querySelector("dialog[open]")){ if(then) then(); return; }
   d._then = then || null;
-  if(!v.src) v.src = "video/wunny-intro.mp4";
+  if(!v.src) v.src = "video/wunny-intro-1080.mp4";
   try{ v.currentTime = 0; }catch(e){}
   v.muted = false; v.volume = Math.min(1, Math.max(.4, VOL("master")));
   d.showModal();
   if(BGM.el && !BGM.el.paused) BGM.el.pause();
   BGM.hold = true;
-  const p = v.play(); if(p && p.catch) p.catch(()=>{ v.muted = true; v.play().catch(()=>{}); });
+  const snd = $("#introSound"); snd.hidden = true;
+  const p = v.play(); if(p && p.catch) p.catch(()=>{ v.muted = true; snd.hidden = false; v.play().catch(()=>{}); });
 }
 function closeIntro(){ const d = $("#introDlg"); if(d && d.open) d.close(); }
 (function(){
   const d = $("#introDlg"), v = $("#introVid"); if(!d) return;
   v.addEventListener("ended", ()=>setTimeout(closeIntro, 500));
+  // Nobody can pause, scrub or speed up the intro: it just plays.
+  v.addEventListener("pause", ()=>{ if(d.open && !v.ended) v.play().catch(()=>{}); });
+  v.addEventListener("ratechange", ()=>{ if(v.playbackRate !== 1) v.playbackRate = 1; });
+  $("#introSound").addEventListener("click", e=>{ v.muted = false; e.currentTarget.hidden = true; });
   d.addEventListener("close", ()=>{ try{ v.pause(); }catch(e){} BGM.hold = false; bgmSync(); S.intro = 1; save(); const t = d._then; d._then = null; if(t) setTimeout(t, 450); });
 })();
+
+document.addEventListener("contextmenu", e=>{ if(e.target.closest && e.target.closest(".nomanip")) e.preventDefault(); });
+document.addEventListener("dragstart", e=>{ if(e.target.closest && e.target.closest(".nomanip")) e.preventDefault(); });
+// Founder clips loop silently while they're on screen.
+const FVID = "IntersectionObserver" in window ? new IntersectionObserver(es=>es.forEach(en=>{ const v = en.target; if(en.isIntersecting) v.play().catch(()=>{}); else v.pause(); }), {threshold:.2}) : null;
+new MutationObserver(()=>document.querySelectorAll("video.fvid:not([data-on])").forEach(v=>{ v.dataset.on = 1; v.muted = true;
+  v.addEventListener("pause", ()=>{ if(!document.hidden && v.dataset.vis==="1") v.play().catch(()=>{}); });
+  if(FVID) FVID.observe(v); else v.play().catch(()=>{}); })).observe(document.body, {childList:true, subtree:true});
 
 /* ---------- Bonus lesson: locked behind a password, topic hidden until it's open ---------- */
 const BONUS_KEY = "wunny.bonus.v1";
