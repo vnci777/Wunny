@@ -1258,7 +1258,7 @@ img{height:auto}
 <dialog id="introDlg" aria-label="Meet Wunny: a short video"><div class="intro-box">
   <div class="intro-vid nomanip"><video id="introVid" playsinline preload="none" poster="video/wunny-intro-1080.jpg?v=4" disablepictureinpicture disableremoteplayback controlslist="nodownload nofullscreen noplaybackrate noremoteplayback" tabindex="-1"></video>
     <button class="snd-on" id="introSound" type="button" hidden><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H3v6h3l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13"/></svg>Turn sound on</button></div>
-  <div class="intro-row"><p>Welcome to Wunny. Here's the 30-second tour.</p>
+  <div class="intro-row"><p id="introCap">Welcome to Wunny. Here's the 30-second tour.</p>
     <button class="skipbtn" type="button" id="introSkip">Skip<svg viewBox="0 0 24 24" aria-hidden="true" fill="currentColor"><path d="M5 5.5v13l9-6.5zM14 5.5v13l7-6.5z"/></svg></button></div>
 </div></dialog>
 <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
@@ -3005,7 +3005,7 @@ const PAGES = {
       <div class="prose">
         <p>Wunny is a Cantonese course for complete beginners, built for busy university students. Each day takes about 10 minutes. In 14 days you learn the words and phrases you need first: greetings, numbers, food, and finding your way around.</p>
         <p>Our mascot is a raccoon. In Cantonese, a raccoon is <span lang="zh-HK">浣熊</span> (wun<span class="tn">5</span> hung<span class="tn">4</span>), and that's where Wunny got its name.</p>
-        <p><button class="tonebtn" type="button" data-intro>${IC.play}Watch the 30-second intro</button></p>
+        <p style="display:flex;flex-wrap:wrap;gap:10px"><button class="tonebtn" type="button" data-intro>${IC.play}Watch the 30-second intro</button><button class="tonebtn" type="button" data-intro="launch">${IC.play}Watch the launch video</button></p>
       </div>
       <figure class="prof small">${profRig()}<figcaption><b>Professor Wunny</b>In honour of Professor Burton, UBC Linguistics, who inspired Wunny.</figcaption></figure>
     </div>
@@ -3438,12 +3438,18 @@ function showTips(){
 }
 
 /* ---------- Intro video (first sign-up) ---------- */
-function openIntro(then){
+const VIDS = {
+  intro: {src:"video/wunny-intro-1080.mp4?v=4", poster:"video/wunny-intro-1080.jpg?v=4", cap:"Welcome to Wunny. Here's the 30-second tour."},
+  launch: {src:"video/wunny-launch-1080.mp4?v=1", poster:"video/wunny-launch-1080.jpg?v=1", cap:"The Wunny launch video."},
+};
+function openIntro(then, which){
   const d = $("#introDlg"), v = $("#introVid");
   if(!d || d.open) return;
   if(document.querySelector("dialog[open]")){ if(then) then(); return; }
   d._then = then || null;
-  if(!v.src) v.src = "video/wunny-intro-1080.mp4?v=4";
+  const V = VIDS[which] || VIDS.intro;
+  if(!v.src.endsWith(V.src)){ v.poster = V.poster; v.src = V.src; }
+  $("#introCap").textContent = V.cap;
   try{ v.currentTime = 0; }catch(e){}
   v.muted = false; v.volume = Math.min(1, Math.max(.4, VOL("master")));
   d.showModal();
@@ -3739,7 +3745,7 @@ document.addEventListener("click", e=>{
   if(t.closest("#gSpeed")) return groupSpeed();
   if(t.closest("#gChip")) return openBoard();
   if(t.closest("#introSkip")) return closeIntro();
-  if(t.closest("[data-intro]")) return openIntro();
+  const iv = t.closest("[data-intro]"); if(iv) return openIntro(null, iv.dataset.intro || "intro");
   if(t.closest("[data-dretry]")){ DICT.state = "idle"; return loadDict(); }
   const dq = t.closest("[data-dq]"); if(dq){ const i = $("#dictQ"); if(i){ i.value = dq.dataset.dq; DICT.q = i.value; drawDict(); i.focus({preventScroll:true}); } return; }
 });
