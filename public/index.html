@@ -1256,7 +1256,7 @@ img{height:auto}
 <dialog id="groupDlg" aria-labelledby="groupTitle"><div class="dlg" id="groupIn"></div></dialog>
 <dialog id="boardDlg" aria-labelledby="boardTitle"><div class="dlg" id="boardIn"></div></dialog>
 <dialog id="introDlg" aria-label="Meet Wunny: a short video"><div class="intro-box">
-  <div class="intro-vid nomanip"><video id="introVid" playsinline preload="none" poster="video/wunny-intro-1080.jpg" disablepictureinpicture disableremoteplayback controlslist="nodownload nofullscreen noplaybackrate noremoteplayback" tabindex="-1"></video>
+  <div class="intro-vid nomanip"><video id="introVid" playsinline preload="none" poster="video/wunny-intro-1080.jpg?v=4" disablepictureinpicture disableremoteplayback controlslist="nodownload nofullscreen noplaybackrate noremoteplayback" tabindex="-1"></video>
     <button class="snd-on" id="introSound" type="button" hidden><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H3v6h3l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13"/></svg>Turn sound on</button></div>
   <div class="intro-row"><p>Welcome to Wunny. Here's the 30-second tour.</p>
     <button class="skipbtn" type="button" id="introSkip">Skip<svg viewBox="0 0 24 24" aria-hidden="true" fill="currentColor"><path d="M5 5.5v13l9-6.5zM14 5.5v13l7-6.5z"/></svg></button></div>
@@ -3443,7 +3443,7 @@ function openIntro(then){
   if(!d || d.open) return;
   if(document.querySelector("dialog[open]")){ if(then) then(); return; }
   d._then = then || null;
-  if(!v.src) v.src = "video/wunny-intro-1080.mp4";
+  if(!v.src) v.src = "video/wunny-intro-1080.mp4?v=4";
   try{ v.currentTime = 0; }catch(e){}
   v.muted = false; v.volume = Math.min(1, Math.max(.4, VOL("master")));
   d.showModal();
