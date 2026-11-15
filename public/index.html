@@ -3439,7 +3439,7 @@ function showTips(){
 
 /* ---------- Intro video (first sign-up) ---------- */
 const VIDS = {
-  intro: {src:"video/wunny-intro-1080.mp4?v=4", poster:"video/wunny-intro-1080.jpg?v=4", cap:"Welcome to Wunny. Here's the 30-second tour."},
+  intro: {src:"video/wunny-intro-1080.mp4?v=5", poster:"video/wunny-intro-1080.jpg?v=4", cap:"Welcome to Wunny. Here's the 30-second tour."},
   launch: {src:"video/wunny-launch-1080.mp4?v=1", poster:"video/wunny-launch-1080.jpg?v=1", cap:"The Wunny launch video."},
 };
 function openIntro(then, which){
@@ -3451,7 +3451,8 @@ function openIntro(then, which){
   if(!v.src.endsWith(V.src)){ v.poster = V.poster; v.src = V.src; }
   $("#introCap").textContent = V.cap;
   try{ v.currentTime = 0; }catch(e){}
-  v.muted = false; v.volume = Math.min(1, Math.max(.4, VOL("master")));
+  // Videos play at the same level as the app's own voice, so nothing jumps out.
+  v.muted = false; v.volume = Math.min(1, Math.max(.25, VOL("master") * .7));
   d.showModal();
   if(BGM.el && !BGM.el.paused) BGM.el.pause();
   BGM.hold = true;
