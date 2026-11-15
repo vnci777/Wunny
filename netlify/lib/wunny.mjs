@@ -57,7 +57,50 @@ const escXml = (t) => t.replace(/[<>&'"]/g, (c) => ({ "<": "&lt;", ">": "&gt;", 
 const audio = (buf) =>
   new Response(buf, { status: 200, headers: { "content-type": "audio/mpeg", "cache-control": "public, max-age=31536000, immutable" } });
 
+// Passwords for the bonus lesson and the group rooms are kept as fingerprints (hashes), never as plain text.
+// To change one, set BONUS_PASSWORD or DEMO_ROOM_PASSWORD in the site's environment settings on Netlify.
+const fingerprint = (t) => crypto.createHash("sha256").update("wunny|" + String(t).trim().toLowerCase()).digest("hex");
+const BONUS_HASH = "9b1103eb50f81edd656b26f3baa16b23de30ea3f6e072af8b2e4c7de16cdd5a3";
+const ROOMS = { demo: "256568f57b3368297b8c27dd5a5a38269427071a9a1f45004f2aac936dab76bb" };
+const ROOM_SEEN_MS = 40000;
+const sameHash = (a, b) => a.length === b.length && crypto.timingSafeEqual(Buffer.from(a), Buffer.from(b));
+
+// The bonus lesson lives here, not in the page, so nobody can read it before they unlock it.
+const BONUS_LESSON = {
+  t: "Street talk",
+  g: "Six rude words you'll hear on every Hong Kong street.",
+  tip: "Learn these so you understand them. Be careful saying them: 屌 and 仆街 are strong, so keep them away from teachers, parents and bosses.",
+  w: [
+    ["痴線", "ci1 sin3", "crazy / you're nuts", "你痴線㗎？", "nei5 ci1 sin3 gaa4?", "Are you crazy?"],
+    ["收皮", "sau1 pei4", "get lost / shut it", "收皮啦你！", "sau1 pei4 laa1 nei5!", "Oh, get lost!"],
+    ["廢柴", "fai3 caai4", "useless person / loser", "佢真係廢柴。", "keoi5 zan1 hai6 fai3 caai4.", "He's such a loser."],
+    ["頂你個肺", "ding2 nei5 go3 fai3", "damn you (literally: push your lung)", "頂你個肺，又遲到！", "ding2 nei5 go3 fai3, jau6 ci4 dou3!", "Damn it, late again!"],
+    ["仆街", "puk1 gaai1", "damn! / jerk (literally: fall on the street)", "仆街，我冇錢！", "puk1 gaai1, ngo5 mou5 cin2!", "Damn, I have no money!"],
+    ["屌", "diu2", "the F-word", "屌，好凍呀！", "diu2, hou2 dung3 aa3!", "F***, it's so cold!"],
+  ],
+};
+
 export function makeHandler(store, getEnv = () => undefined) {
+  const bonusOK = (pw) => sameHash(fingerprint(pw), getEnv("BONUS_PASSWORD") ? fingerprint(getEnv("BONUS_PASSWORD")) : BONUS_HASH);
+  const roomOK = (room, pw) => {
+    if (!Object.hasOwn(ROOMS, room)) return false;
+    const want = room === "demo" && getEnv("DEMO_ROOM_PASSWORD") ? fingerprint(getEnv("DEMO_ROOM_PASSWORD")) : ROOMS[room];
+    return sameHash(fingerprint(pw), want);
+  };
+  const memberKey = (room, name) => `rooms/${room}/${name}`;
+  // Everyone seen in the room in the last 40 seconds, best score first.
+  async function roster(room) {
+    const { blobs } = await store.list({ prefix: `rooms/${room}/` });
+    const all = (await Promise.all(blobs.map((x) => store.get(x.key, { type: "json" })))).filter(Boolean);
+    const now = Date.now();
+    return all
+      .filter((m) => now - m.at < ROOM_SEEN_MS)
+      .sort((a, b) => b.score - a.score || a.joined - b.joined)
+      .slice(0, 60)
+      .map((m) => ({ username: m.username, score: m.score, speed: m.speed, round: m.round }));
+  }
+  const num = (v, max) => Math.max(0, Math.min(max, Math.floor(Number(v) || 0)));
+
   const voicesOn = () => Boolean(getEnv("AZURE_SPEECH_KEY") && getEnv("AZURE_SPEECH_REGION"));
 
   async function speech(url) {
@@ -230,6 +273,39 @@ export function makeHandler(store, getEnv = () => undefined) {
         me.progress = progress;
         me.lastSeen = Date.now();
         await putUser(me);
+        return json(200, { ok: true });
+      }
+
+      if (path === "/bonus" && method === "POST") {
+        const b = await readBody(req);
+        if (!bonusOK(String(b.password || ""))) return json(403, { error: "That's not the password. Ask the Wunny team for it." });
+        return json(200, { lesson: BONUS_LESSON });
+      }
+
+      // Group sessions: a room keeps each player's name and score for as long as they're playing.
+      if (path === "/group/join" && method === "POST") {
+        const b = await readBody(req);
+        const room = String(b.room || "").trim().toLowerCase();
+        if (!Object.hasOwn(ROOMS, room)) return json(404, { error: "There's no room with that name. The open room is called demo." });
+        if (!roomOK(room, String(b.password || ""))) return json(403, { error: "That's not the room password." });
+        const now = Date.now();
+        await store.setJSON(memberKey(room, me.username), { username: me.username, score: 0, speed: 0, round: 1, joined: now, at: now });
+        return json(200, { ok: true, room, roster: await roster(room) });
+      }
+      if (path === "/group/ping" && method === "POST") {
+        const b = await readBody(req);
+        const room = String(b.room || "");
+        if (!Object.hasOwn(ROOMS, room)) return json(404, { error: "That room has closed." });
+        const mine = await store.get(memberKey(room, me.username), { type: "json" });
+        if (!mine) return json(403, { error: "Join the room first." });
+        Object.assign(mine, { score: num(b.score, 100000), speed: num(b.speed, 1000), round: num(b.round, 100000) || 1, at: Date.now() });
+        await store.setJSON(memberKey(room, me.username), mine);
+        return json(200, { ok: true, roster: await roster(room) });
+      }
+      if (path === "/group/leave" && method === "POST") {
+        const b = await readBody(req);
+        const room = String(b.room || "");
+        if (Object.hasOwn(ROOMS, room)) await store.delete(memberKey(room, me.username));
         return json(200, { ok: true });
       }
 

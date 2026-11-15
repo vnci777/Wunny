@@ -9,3 +9,10 @@
 - Admin usernames are listed in `netlify/lib/wunny.mjs` (`ADMINS`).
 
 Netlify publishes `main` automatically.
+
+## Added 14 November
+
+- `public/ci/` holds a picture for every word (`<lesson>-<word>.webp`), `public/logos/` the university logos, `public/video/` the intro video.
+- `public/tones.html` is the tones guide, shown inside the app.
+- `public/dict/cccanto-webdist.txt` is where the CC-Canto data file goes, unchanged (CC BY-SA 3.0, © Pleco Software). The dictionary page reads it as is.
+- The bonus lesson and the group rooms run through `netlify/lib/wunny.mjs`. Their passwords are stored as fingerprints; set `BONUS_PASSWORD` or `DEMO_ROOM_PASSWORD` in Netlify to change them.

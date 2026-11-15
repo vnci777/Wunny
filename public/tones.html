@@ -1,0 +1,283 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Cantonese tones · Wunny</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400..800&family=Noto+Sans+HK:wght@500;700;800&display=swap">
+<style>
+  :root{--navy:#0b1b33;--blue:#1677f2;--blue-d:#0b58c9;--sky:#3aa7ff;--teal:#3fd0dc;--line:#dbe8fb;--bg:#f6f9ff;--card:#fff;--muted:#56677d;
+    --grad:linear-gradient(95deg,#1673f0,#3aa7ff 52%,#3fd0dc);--grad2:linear-gradient(95deg,#6a5cff,#b58bff);
+    --good:linear-gradient(95deg,#07905f,#12b981 52%,#3fd6a0);--bad:linear-gradient(95deg,#e3334a,#f4573f 52%,#ff9440)}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:"Inter","Noto Sans HK",system-ui,-apple-system,"Segoe UI",sans-serif;background:var(--bg);color:var(--navy);line-height:1.55;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+  body.embed{background:transparent}
+  .wrap{max-width:960px;margin:0 auto;padding:40px 18px 64px}
+  body.embed .wrap{padding-top:18px}
+  h1{font-size:clamp(2.1rem,5vw,3.1rem);font-weight:800;text-align:center;letter-spacing:-.045em;line-height:1.05}
+  h2{font-size:1.8rem;font-weight:800;margin:60px 0 14px;text-align:center;letter-spacing:-.04em}
+  h1 span,h2 span,.card h3 span,.pair .vs span,.word .jp{background:linear-gradient(95deg,#1673f0,#3fd0dc,#1673f0);background-size:200% auto;-webkit-background-clip:text;background-clip:text;color:transparent;animation:shine 5s linear infinite;padding-right:.08em}
+  .pair .vs span.alt{background-image:linear-gradient(95deg,#6a5cff,#b58bff,#6a5cff)}
+  @keyframes shine{to{background-position:200% center}}
+  p.lead{text-align:center;color:var(--muted);max-width:560px;margin:12px auto 0;font-size:1.08rem}
+  .reveal{opacity:0;transform:translateY(24px);transition:opacity .7s ease,transform .7s cubic-bezier(.2,.8,.2,1)}
+  .reveal.in{opacity:1;transform:none}
+  .hero-svg{display:block;margin:30px auto 0;width:min(420px,100%)}
+  .hero-path{fill:none;stroke:url(#gh);stroke-width:12;stroke-linecap:round}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:18px}
+  .card,.step,.pair,.quiz{background:var(--card);border-radius:22px;border:1px solid var(--line);box-shadow:0 3px 0 var(--line),0 26px 40px -34px rgba(22,119,242,.6);position:relative;transition:transform .2s ease,box-shadow .3s,border-color .3s}
+  .card{padding:20px;cursor:pointer}
+  .card:hover,.step:hover,.pair:hover,.card.playing{border-color:var(--sky)}
+  .card.playing{box-shadow:0 0 0 6px rgba(63,208,220,.2),0 3px 0 var(--sky)}
+  .card h3{font-size:1.4rem;font-weight:800;letter-spacing:-.03em}
+  .tag,.pill{display:inline-block;font-size:.8rem;font-weight:750;color:var(--blue-d);background:#eaf4ff;border:1px solid var(--line);border-radius:99px;padding:2px 10px;margin:4px 0 8px}
+  .pill{min-width:28px;text-align:center;border-radius:9px;margin:0 4px 0 0;font-weight:800}
+  .card p,.pair p{color:var(--muted);font-size:.95rem}
+  .word{display:flex;align-items:center;gap:12px;margin-top:12px;padding-top:12px;border-top:1px solid var(--line)}
+  .word .zh{font-family:"Noto Sans HK",sans-serif;font-size:2rem;font-weight:800}
+  .word .jp{font-weight:750}
+  .word .en{color:var(--muted);font-size:.9rem}
+  .btns{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+  button{font:inherit;font-weight:750;border:0;border-radius:99px;padding:9px 16px;cursor:pointer;background:var(--grad);color:#fff;font-size:.88rem;box-shadow:0 3px 0 var(--blue-d);transition:transform .1s,filter .2s}
+  button:hover{filter:brightness(1.07)}
+  button:active{transform:translateY(2px);box-shadow:0 1px 0 var(--blue-d)}
+  button.ghost,.choices button{background:#fff;color:var(--blue-d);border:1.5px solid #bcd6fb;box-shadow:0 3px 0 #bcd6fb}
+  .tone-svg{width:100%;height:auto;display:block;filter:drop-shadow(0 4px 6px rgba(22,119,242,.2))}
+  .gl{stroke:var(--line);stroke-width:3;stroke-linecap:round}
+  .tp{fill:none;stroke:url(#g);stroke-width:14;stroke-linecap:round}
+  .dot{fill:#fff;stroke:var(--blue);stroke-width:3;transition:opacity .3s}
+  .steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:18px}
+  .step{padding:20px}
+  .step .num{width:36px;height:36px;border-radius:50%;display:grid;place-items:center;font-weight:800;color:#fff;background:var(--grad);margin-bottom:10px;animation:float 3s ease-in-out infinite}
+  .step:nth-child(2) .num{animation-delay:.4s}.step:nth-child(3) .num{animation-delay:.8s}
+  @keyframes float{50%{transform:translateY(-6px)}}
+  .step h3{font-size:1.12rem;margin-bottom:6px;letter-spacing:-.02em}
+  .step ul{list-style:none;color:var(--muted)}
+  .step li{padding:3px 0}
+  .step b{color:var(--navy)}
+  .pairs{display:grid;gap:14px;max-width:640px;margin:0 auto}
+  .pair{padding:16px 20px;display:flex;align-items:center;gap:16px}
+  .pair .vs{font-weight:800;font-size:1.2rem;white-space:nowrap}
+  .pair svg{flex-shrink:0;width:90px}
+  .quiz{padding:26px;text-align:center;max-width:560px;margin:0 auto}
+  .choices{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:18px}
+  .choices button{padding:14px}
+  .choices button.right{background:var(--good);color:#fff;border-color:transparent;box-shadow:0 3px 0 #067650;animation:pop .4s}
+  .choices button.wrong{background:var(--bad);color:#fff;border-color:transparent;box-shadow:0 3px 0 #b3243a;animation:shake .4s}
+  @keyframes pop{50%{transform:scale(1.1)}}
+  @keyframes shake{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+  .fb{min-height:28px;margin-top:14px;font-weight:750}
+  .score{color:var(--muted);margin-top:6px}
+  .tip{margin:52px auto 0;max-width:640px;text-align:center;background:linear-gradient(120deg,#1673f0,#3aa7ff,#3fd0dc,#1673f0);background-size:300% 300%;animation:flow 10s ease infinite;color:#fff;border-radius:24px;padding:26px}
+  @keyframes flow{50%{background-position:100% 50%}}
+  .tip h3{font-size:1.3rem;margin-bottom:6px;letter-spacing:-.02em}
+  .note{text-align:center;color:var(--muted);font-size:.85rem;margin-top:10px;min-height:1.3em}
+  .wave{display:inline-flex;gap:3px;height:16px;align-items:flex-end;margin-left:6px;vertical-align:middle}
+  .wave i{width:3px;background:#fff;border-radius:2px;height:4px}
+  button.on .wave i{animation:bar .5s ease-in-out infinite alternate}
+  .wave i:nth-child(2){animation-delay:.1s}.wave i:nth-child(3){animation-delay:.2s}.wave i:nth-child(4){animation-delay:.3s}
+  @keyframes bar{to{height:16px}}
+  @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.reveal{opacity:1;transform:none}}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+  <linearGradient id="g" gradientUnits="userSpaceOnUse" x1="40" x2="260" y1="0" y2="0"><stop offset="0" stop-color="#1673f0"/><stop offset="1" stop-color="#3fd0dc"/></linearGradient>
+  <linearGradient id="gh" gradientUnits="userSpaceOnUse" x1="30" x2="390" y1="0" y2="0"><stop offset="0" stop-color="#1673f0"/><stop offset=".5" stop-color="#3aa7ff"/><stop offset="1" stop-color="#3fd0dc"/></linearGradient>
+  <linearGradient id="gb" gradientUnits="userSpaceOnUse" x1="40" x2="260" y1="0" y2="0"><stop offset="0" stop-color="#6a5cff"/><stop offset="1" stop-color="#b58bff"/></linearGradient>
+</defs></svg>
+
+<div class="wrap">
+  <section class="reveal">
+    <h1>What Are <span>Tones?</span></h1>
+    <p class="lead">A tone is how your voice moves on a word. It can stay high, stay low, rise, or fall.</p>
+    <p class="lead">In Cantonese, tone changes a word's meaning. The same sound can mean six different things!</p>
+    <svg class="hero-svg" viewBox="0 0 420 220" role="img" aria-label="A pitch line that climbs, stays level, then slides down">
+      <g id="heroLines"></g>
+      <path id="heroPath" class="hero-path" d=""/>
+      <circle class="dot" cx="30" cy="155" r="10"/>
+      <circle id="heroEnd" class="dot" cx="390" cy="200" r="10" style="opacity:0"/>
+    </svg>
+    <p class="lead">Think of your voice like a ladder. It can stay still, climb up, or slide down.</p>
+  </section>
+
+  <h2 class="reveal">The <span>Six</span> Tones</h2>
+  <p class="lead reveal" style="margin-bottom:26px">Every example uses the sound <b>"si"</b>. Tap a card to watch and hear it.</p>
+  <div class="grid" id="grid"></div>
+
+  <h2 class="reveal">How to Tell Tones <span>Apart</span></h2>
+  <div class="steps">
+    <div class="step reveal"><div class="num">1</div><h3>Does it move?</h3><ul>
+      <li><b>Flat</b> tones stay still: <span class="pill">1</span><span class="pill">3</span><span class="pill">6</span></li>
+      <li><b>Rising</b> tones go up: <span class="pill">2</span><span class="pill">5</span></li>
+      <li><b>Falling</b> tone goes down: <span class="pill">4</span></li></ul></div>
+    <div class="step reveal"><div class="num">2</div><h3>Flat? Listen for height</h3><ul>
+      <li><span class="pill">1</span> is high.</li><li><span class="pill">3</span> is middle.</li><li><span class="pill">6</span> is low.</li></ul></div>
+    <div class="step reveal"><div class="num">3</div><h3>Rising? Listen for size</h3><ul>
+      <li><span class="pill">2</span> is a big climb.</li><li><span class="pill">5</span> is a small climb.</li><li><span class="pill">4</span> is the only one that drops!</li></ul></div>
+  </div>
+
+  <h2 class="reveal">Tricky <span>Pairs</span></h2>
+  <div class="pairs" id="pairs"></div>
+
+  <h2 class="reveal">Try It <span>Yourself</span></h2>
+  <div class="quiz reveal">
+    <p>Press play and listen. Which tone did you hear?</p>
+    <div class="btns" style="justify-content:center;margin-top:14px"><button id="qPlay" type="button">Play sound <span class="wave"><i></i><i></i><i></i><i></i></span></button></div>
+    <div class="choices" id="choices"></div>
+    <div class="fb" id="fb" aria-live="polite"></div>
+    <div class="score" id="score">Score: 0 / 0</div>
+  </div>
+
+  <div class="tip reveal"><h3>Try shadowing</h3><p>Play a tone, then copy it right away. Match the pitch.</p></div>
+  <p class="note" id="note">"Hum" plays the pitch shape. "Say it" reads the word in Cantonese.</p>
+</div>
+
+<script>
+/* Pitch levels 1 (low) to 5 (high). Contours from standard Chao numbers. */
+const TONES = [
+  {n:1, name:"High and flat",   c:[5,5], desc:"Keep your voice high and steady. Like singing one high note.", zh:"詩", jp:"si1", en:"poem"},
+  {n:2, name:"High rising",     c:[3,5], desc:"Start in the middle, then go up. Like asking \"Huh?\" in surprise.", zh:"史", jp:"si2", en:"history"},
+  {n:3, name:"Middle and flat", c:[3,3], desc:"Keep your voice steady in the middle. Your normal talking voice.", zh:"試", jp:"si3", en:"to try"},
+  {n:4, name:"Low falling",     c:[2,1], desc:"Start low and drop even lower. Like a tired sigh.", zh:"時", jp:"si4", en:"time"},
+  {n:5, name:"Low rising",      c:[2,3], desc:"Start low, then rise a little. A gentle, small rise.", zh:"市", jp:"si5", en:"market"},
+  {n:6, name:"Low and flat",    c:[2,2], desc:"Keep your voice low and steady. Calm, like saying \"okay.\"", zh:"事", jp:"si6", en:"matter, thing"},
+];
+const EMBED = window.parent !== window;
+if(EMBED) document.body.classList.add("embed");
+const W=300,H=200,X0=50,X1=250;
+const yOf = lvl => 30 + (5-lvl)*35;
+function pathFor(c){
+  const [a,b]=c, y0=yOf(a), y1=yOf(b);
+  if(b>a) return `M${X0},${y0} C${X0+60},${y0+8} ${X1-80},${y1+30} ${X1},${y1}`;
+  return `M${X0},${y0} L${X1},${y1}`;
+}
+function gridLines(){ let s=""; for(let l=5;l>=1;l--) s+=`<line class="gl" x1="20" x2="${W-20}" y1="${yOf(l)}" y2="${yOf(l)}"/>`; return s; }
+
+/* sound: hum the pitch shape */
+let ctx;
+function hum(c,dur=0.7){
+  try{
+    ctx = ctx || new (window.AudioContext||window.webkitAudioContext)();
+    if(ctx.state==="suspended") ctx.resume();
+    const f = lvl => 230*Math.pow(2,(lvl-1)*3/12);
+    const o=ctx.createOscillator(), g=ctx.createGain(), t=ctx.currentTime;
+    o.type="triangle";
+    o.frequency.setValueAtTime(f(c[0]),t); o.frequency.linearRampToValueAtTime(f(c[1]),t+dur);
+    g.gain.setValueAtTime(0,t); g.gain.linearRampToValueAtTime(.35,t+.05); g.gain.setValueAtTime(.35,t+dur-.08); g.gain.linearRampToValueAtTime(0,t+dur);
+    o.connect(g).connect(ctx.destination); o.start(t); o.stop(t+dur+.02);
+  }catch(e){}
+}
+const note = t => { document.getElementById("note").textContent = t; };
+function say(text){
+  // inside Wunny, the app's own Cantonese voice reads the word
+  if(EMBED){ try{ window.parent.postMessage({wunnySay:text}, location.origin); return; }catch(e){} }
+  if(!("speechSynthesis" in window)) return note("This browser can't read words aloud. Try the Hum button!");
+  const v=speechSynthesis.getVoices().find(v=>/zh-HK|yue/i.test(v.lang));
+  if(!v) return note("No Cantonese voice found on this device. Try the Hum button!");
+  const u=new SpeechSynthesisUtterance(text); u.voice=v; u.lang=v.lang; u.rate=.7; speechSynthesis.cancel(); speechSynthesis.speak(u);
+}
+if("speechSynthesis" in window) speechSynthesis.getVoices();
+
+function animate(svg,dur=1200){
+  const p=svg.querySelector(".tp"), dots=svg.querySelectorAll(".dot"), L=p.getTotalLength();
+  p.style.strokeDasharray=L; p.style.strokeDashoffset=L;
+  dots.forEach(d=>d.style.opacity=0); dots[0].style.opacity=1;
+  const start=performance.now();
+  (function step(now){
+    const k=Math.min((now-start)/dur,1), e=k<.5?2*k*k:1-Math.pow(-2*k+2,2)/2;
+    p.style.strokeDashoffset=L*(1-e);
+    if(k<1) requestAnimationFrame(step); else dots[1].style.opacity=1;
+  })(start);
+}
+const toneSVG = t => `<svg class="tone-svg" viewBox="0 0 ${W} ${H}" aria-hidden="true">${gridLines()}<path class="tp" d="${pathFor(t.c)}"/>
+  <circle class="dot" cx="${X0}" cy="${yOf(t.c[0])}" r="9"/><circle class="dot" cx="${X1}" cy="${yOf(t.c[1])}" r="9"/></svg>`;
+
+const grid=document.getElementById("grid");
+TONES.forEach(t=>{
+  const el=document.createElement("div"); el.className="card reveal";
+  el.innerHTML=`<h3>Tone <span>${t.n}</span></h3><div class="tag">${t.name}</div>${toneSVG(t)}<p>${t.desc}</p>
+    <div class="word"><div class="zh" lang="zh-HK">${t.zh}</div><div><div class="jp">${t.jp}</div><div class="en">${t.en}</div></div></div>
+    <div class="btns"><button class="b-hum" type="button">Hum</button><button class="ghost b-say" type="button">Say it</button></div>`;
+  const svg=el.querySelector("svg");
+  el.addEventListener("click",e=>{
+    animate(svg); el.classList.add("playing"); setTimeout(()=>el.classList.remove("playing"),1300);
+    if(e.target.classList.contains("b-say")) say(t.zh); else hum(t.c,1.1);
+  });
+  el.addEventListener("mouseenter",()=>animate(svg));
+  el._play=()=>animate(svg);
+  grid.appendChild(el);
+});
+
+const PAIRS=[[3,6,"Both are flat. Tone 6 sits lower."],[2,5,"Both rise. Tone 2 ends much higher."],[4,6,"Both are low. Tone 4 drops, Tone 6 stays."]];
+const pairs=document.getElementById("pairs");
+PAIRS.forEach(([a,b,txt])=>{
+  const A=TONES[a-1],B=TONES[b-1], el=document.createElement("div"); el.className="pair reveal";
+  el.innerHTML=`<svg viewBox="0 0 ${W} ${H}" aria-hidden="true">${gridLines()}
+      <path d="${pathFor(A.c)}" fill="none" stroke="url(#g)" stroke-width="14" stroke-linecap="round"/>
+      <path d="${pathFor(B.c)}" fill="none" stroke="url(#gb)" stroke-width="14" stroke-linecap="round" stroke-dasharray="2 22"/></svg>
+    <div><div class="vs"><span>${a}</span> vs <span class="alt">${b}</span></div><p>${txt}</p>
+    <div class="btns"><button class="ghost" type="button">Hum ${a}</button><button class="ghost" type="button">Hum ${b}</button></div></div>`;
+  const [ba,bb]=el.querySelectorAll("button");
+  ba.onclick=()=>hum(A.c,1); bb.onclick=()=>hum(B.c,1);
+  pairs.appendChild(el);
+});
+
+/* hero: the line climbs, sits, slides */
+(function(){
+  const lines=document.getElementById("heroLines");
+  for(let l=5;l>=1;l--){ const y=20+(5-l)*45; lines.innerHTML+=`<line class="gl" x1="10" x2="410" y1="${y}" y2="${y}"/>`; }
+  const path=document.getElementById("heroPath"), end=document.getElementById("heroEnd");
+  path.setAttribute("d","M30,155 C80,160 110,30 160,20 L260,20 C300,20 330,190 390,200");
+  const L=path.getTotalLength(); path.style.strokeDasharray=L;
+  if(matchMedia("(prefers-reduced-motion: reduce)").matches){ end.style.opacity=1; return; }
+  let start=null;
+  (function loop(now){
+    if(!start) start=now;
+    const k=((now-start)%4000)/4000, e=Math.min(k/0.8,1);
+    path.style.strokeDashoffset=L*(1-e); end.style.opacity = e>=1 ? 1 : 0;
+    requestAnimationFrame(loop);
+  })(performance.now());
+})();
+
+/* quiz */
+let current=null, right=0, total=0, answered=false;
+const choices=document.getElementById("choices"), fb=document.getElementById("fb"), score=document.getElementById("score");
+TONES.forEach(t=>{
+  const b=document.createElement("button"); b.type="button"; b.textContent="Tone "+t.n;
+  b.onclick=()=>{
+    if(!current){ fb.textContent="Press play first!"; return; }
+    if(answered) return; answered=true; total++;
+    if(t.n===current.n){ right++; b.classList.add("right"); fb.textContent="Nice! That's Tone "+t.n+"."; }
+    else { b.classList.add("wrong"); choices.children[current.n-1].classList.add("right"); fb.textContent="Not quite. It was Tone "+current.n+": "+current.name.toLowerCase()+"."; }
+    score.textContent=`Score: ${right} / ${total}`;
+  };
+  choices.appendChild(b);
+});
+const qp=document.getElementById("qPlay");
+qp.onclick=()=>{
+  if(!current||answered){ current=TONES[Math.floor(Math.random()*6)]; answered=false; fb.textContent=""; [...choices.children].forEach(c=>c.className=""); }
+  hum(current.c,1.1); qp.classList.add("on"); setTimeout(()=>qp.classList.remove("on"),1150);
+};
+
+/* scroll reveal, and each card draws itself as it arrives */
+const io=new IntersectionObserver(es=>es.forEach(e=>{
+  if(e.isIntersecting){ e.target.classList.add("in"); e.target._play&&setTimeout(e.target._play,250); io.unobserve(e.target); }
+}),{threshold:.15});
+document.querySelectorAll(".reveal").forEach(el=>io.observe(el));
+document.querySelectorAll(".grid .card,.steps .step,.pairs .pair").forEach((el,i)=>el.style.transitionDelay=(i%3)*0.12+"s");
+document.querySelectorAll(".step").forEach(el=>{
+  el.addEventListener("mousemove",e=>{ el.style.transitionDelay="0s"; const r=el.getBoundingClientRect(),x=(e.clientX-r.left)/r.width-.5,y=(e.clientY-r.top)/r.height-.5;
+    el.style.transform=`perspective(700px) rotateY(${x*8}deg) rotateX(${-y*8}deg) translateY(-4px)`; });
+  el.addEventListener("mouseleave",()=>el.style.transform="");
+});
+/* tell the page around us how tall we are, so the frame never needs its own scrollbar */
+if(EMBED){
+  const tell = () => { try{ window.parent.postMessage({wunnyTonesH:document.documentElement.scrollHeight}, location.origin); }catch(e){} };
+  new ResizeObserver(tell).observe(document.body); addEventListener("load", tell); tell();
+}
+</script>
+</body>
+</html>
