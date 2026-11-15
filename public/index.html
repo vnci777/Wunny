@@ -921,7 +921,8 @@ img{height:auto}
 .gcard h3{margin:0;font-size:21px;letter-spacing:-.03em}
 .gcard p{margin:0;color:var(--muted);font-size:14.5px;max-width:46ch}
 .gcard .btn{min-height:44px;font-size:15.5px;padding:0 22px;background:var(--grad-good);box-shadow:0 1px 0 rgba(255,255,255,.35) inset,0 4px 0 #067650,0 14px 24px -12px rgba(18,185,129,.75)}
-.gcard .btn svg{width:20px;height:20px;flex:none}
+.gcard .btn{gap:8px;white-space:nowrap}
+.gcard .btn svg{width:18px!important;height:18px!important;max-width:18px;flex:none}
 .gcard .pill{color:#067650;border-color:rgba(18,185,129,.35)}
 .gcard .pill .dot{background:#12b981;box-shadow:0 0 0 4px rgba(18,185,129,.22);animation:livePulse 1.6s ease-out infinite}
 @keyframes livePulse{0%{box-shadow:0 0 0 0 rgba(18,185,129,.55)}100%{box-shadow:0 0 0 9px rgba(18,185,129,0)}}
@@ -2982,7 +2983,7 @@ const PAGES = {
       <h2>Lessons and accuracy</h2>
       <p>We work hard to get every word, tone and translation right, but lessons may contain mistakes. Wunny is a learning aid and is provided as is, without guarantees. If you spot an error, please tell us through the Contact page.</p>
       <h2>The dictionary</h2>
-      <p>The dictionary page shows <a href="https://cantonese.org/" target="_blank" rel="noopener">CC-Canto</a>, copyright © 2015–16 Pleco Software Incorporated, under the <a href="https://creativecommons.org/licenses/by-sa/3.0/" target="_blank" rel="noopener">Creative Commons Attribution-ShareAlike 3.0 licence</a>. We show its entries unchanged. You may copy, share and adapt that dictionary data under the same licence. Pleco doesn't endorse Wunny. Wunny's own lessons, pictures and mascot are not part of the dictionary and aren't covered by that licence.</p>
+      <p>The dictionary page shows <a href="https://cantonese.org/" target="_blank" rel="noopener">CC-Canto</a>, copyright © 2015–17 Pleco Inc., under the <a href="https://creativecommons.org/licenses/by-sa/3.0/" target="_blank" rel="noopener">Creative Commons Attribution-ShareAlike 3.0 licence</a>. We show its entries unchanged. You may copy, share and adapt that dictionary data under the same licence. Pleco doesn't endorse Wunny. Wunny's own lessons, pictures and mascot are not part of the dictionary and aren't covered by that licence.</p>
       <h2>Changes</h2>
       <p>Wunny is a young project. We may change lessons and features, or pause the service. If we change these terms, we'll update the date at the top of this page.</p>
       <h2>Questions</h2>
@@ -3560,7 +3561,7 @@ PAGES.dictionary = () => `<div class="rise"><span class="pill"><span class="dot"
     <input class="inp" id="dictQ" type="search" placeholder="Try “thank you”, 唔該 or m4 goi1" autocapitalize="none" autocorrect="off" spellcheck="false" value="${esc(DICT.q)}"></div>
   <div class="dict-hints rise" style="--i:2" aria-label="Example searches">${["hello","delicious","raccoon","飲茶","nei5 hou2","點解"].map(h=>`<button type="button" data-dq="${esc(h)}" lang="${CJK.test(h) ? "zh-HK" : "en"}">${esc(h)}</button>`).join("")}</div>
   <div id="dictOut" aria-live="polite"></div>
-  <div class="dict-credit rise" style="--i:3"><b>Where these entries come from.</b> The dictionary is <a href="https://cantonese.org/" target="_blank" rel="noopener">CC-Canto</a>, copyright © 2015–16 Pleco Software Incorporated,
+  <div class="dict-credit rise" style="--i:3"><b>Where these entries come from.</b> The dictionary is <a href="https://cantonese.org/" target="_blank" rel="noopener">CC-Canto</a>, copyright © 2015–17 Pleco Inc.,
     used under the <a href="https://creativecommons.org/licenses/by-sa/3.0/" target="_blank" rel="noopener">Creative Commons Attribution-ShareAlike 3.0 licence</a>.
     Wunny shows the entries as published. Nothing in them has been changed; we only lay them out for searching. You can <a href="dict/cccanto-webdist.txt" download>download the same data file</a> and share or adapt it under the same licence.
     Pleco doesn't endorse Wunny, and the dictionary comes with no warranty. Wunny's own lessons are separate from it.</div>`;
