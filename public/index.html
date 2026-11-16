@@ -1530,8 +1530,16 @@ const shuffle = a => { a=a.slice(); for(let i=a.length-1;i>0;i--){ const j=Math.
 const pick = a => a[Math.floor(Math.random()*a.length)];
 const related = (a,b) => a.zh.includes(b.zh) || b.zh.includes(a.zh);
 const dkey = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
-const today = () => dkey(new Date());
-const yesterday = () => { const d=new Date(); d.setDate(d.getDate()-1); return dkey(d); };
+/* Wunny runs on Pacific time (Vancouver) for everyone, wherever they are.
+   wunnyNow() gives a Date whose day, hour and minute read as the current Pacific time. */
+const TZ = "America/Los_Angeles";
+const TZ_FMT = new Intl.DateTimeFormat("en-US", {timeZone:TZ, year:"numeric", month:"numeric", day:"numeric", hour:"numeric", minute:"numeric", second:"numeric", hourCycle:"h23"});
+function wunnyNow(){
+  const p = {}; TZ_FMT.formatToParts(new Date()).forEach(x=>{ p[x.type] = +x.value; });
+  return new Date(p.year, p.month-1, p.day, p.hour % 24, p.minute, p.second);
+}
+const today = () => dkey(wunnyNow());
+const yesterday = () => { const d=wunnyNow(); d.setDate(d.getDate()-1); return dkey(d); };
 
 const IC = {
   spk:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9.2v5.6h3.8L13 19V5L7.8 9.2H4z" fill="currentColor"/><path d="M16.2 8.6a4.6 4.6 0 0 1 0 6.8M18.7 6a8.3 8.3 0 0 1 0 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
@@ -1581,7 +1589,7 @@ function lessonState(i){
 let shownDay = today(), dayT = 0;
 function dayWatch(){
   clearTimeout(dayT);
-  const now = new Date(), mid = new Date(now.getFullYear(), now.getMonth(), now.getDate()+1, 0, 0, 1);
+  const now = wunnyNow(), mid = new Date(now.getFullYear(), now.getMonth(), now.getDate()+1, 0, 0, 1);
   dayT = setTimeout(dayTurn, Math.min(mid - now, 2147483000));
 }
 function dayTurn(){
@@ -1841,7 +1849,7 @@ function countUp(el, from, to, dur=900, fmt=v=>v){
 
 /* ---------- Home ---------- */
 function weekHTML(){
-  const d = new Date(), dow = (d.getDay()+6)%7, mon = new Date(d); mon.setDate(d.getDate()-dow);
+  const d = wunnyNow(), dow = (d.getDay()+6)%7, mon = new Date(d); mon.setDate(d.getDate()-dow);
   const L = ["M","T","W","T","F","S","S"]; let h = "";
   for(let k=0;k<7;k++){
     const x = new Date(mon); x.setDate(mon.getDate()+k); const key = dkey(x);
@@ -3124,7 +3132,7 @@ function footerHTML(){
       <a href="#about">About</a><a href="#contact">Contact</a><a href="#terms">Terms</a><a href="#privacy">Privacy</a>
       <a href="${INSTAGRAM}" target="_blank" rel="noopener">${IC.insta}Instagram</a>
       <a href="${LINKEDIN}" target="_blank" rel="noopener">${IC.linkedin}LinkedIn</a></nav>
-    <p class="sf-copy">© ${new Date().getFullYear()} Wunny</p>
+    <p class="sf-copy">© ${wunnyNow().getFullYear()} Wunny</p>
   </div></footer>`;
 }
 const pageTop = () => `<header class="top"><div class="wrap">
@@ -3134,7 +3142,7 @@ const pageTop = () => `<header class="top"><div class="wrap">
 /* Word bank */
 function unlockDate(i){
   const nx = nextIndex(); if(nx < 0) return null;
-  const d = new Date(); d.setDate(d.getDate() + (i - nx) + (didNewToday() ? 1 : 0));
+  const d = wunnyNow(); d.setDate(d.getDate() + (i - nx) + (didNewToday() ? 1 : 0));
   return d;
 }
 function renderWords(){
@@ -3387,9 +3395,9 @@ function fmtDay(k){
   if(k===today()) return "Today";
   if(k===yesterday()) return "Yesterday";
   const [y,m,d] = k.split("-").map(Number);
-  return new Date(y,m-1,d).toLocaleDateString("en",{month:"short", day:"numeric", year: y!==new Date().getFullYear() ? "numeric" : undefined});
+  return new Date(y,m-1,d).toLocaleDateString("en",{month:"short", day:"numeric", year: y!==wunnyNow().getFullYear() ? "numeric" : undefined});
 }
-const fmtDate = ms => ms ? new Date(ms).toLocaleDateString("en",{month:"short", day:"numeric", year:"numeric"}) : "—";
+const fmtDate = ms => ms ? new Date(ms).toLocaleDateString("en",{timeZone:TZ, month:"short", day:"numeric", year:"numeric"}) : "—";
 
 function adminTable(){
   if(adminState==="loading") return `<p class="empty">Loading learners…</p>`;
@@ -3453,7 +3461,7 @@ async function openAdmin(){
   if(!$("#admin").hidden){ renderAdmin(); loadMessages(); }
 }
 const fmtDur = sec => { sec = Math.round(sec||0); if(sec < 60) return sec + "s"; const m = Math.floor(sec/60), h = Math.floor(m/60); return h ? `${h}h ${String(m%60).padStart(2,"0")}m` : `${m}m ${String(sec%60).padStart(2,"0")}s`; };
-const fmtDT = ms => ms ? new Date(ms).toLocaleString("en",{month:"short", day:"numeric", year:"numeric", hour:"numeric", minute:"2-digit"}) : "—";
+const fmtDT = ms => ms ? new Date(ms).toLocaleString("en",{timeZone:TZ, timeZoneName:"short", month:"short", day:"numeric", year:"numeric", hour:"numeric", minute:"2-digit"}) : "—";
 const MODE_NAME = {new:"Lesson", challenge:"Challenge", review:"Review"};
 function openLearner(name){
   const l = LEARNERS.find(x=>x.username===name); if(!l) return;
