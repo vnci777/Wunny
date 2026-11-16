@@ -1269,7 +1269,7 @@ img{height:auto}
    Where /api isn't available (a preview or a copy opened as a file) the app runs without accounts. */
 const API = "/api";
 const TOKEN_KEY = "wunny.session.v1";
-const AUTH = {on:false, token:null, profile:null};
+const AUTH = {on:false, token:null, profile:null, pending:null};
 
 /* ---------- Course content ---------- */
 // Each word: [characters, jyutping, English, example, example jyutping, example English]
@@ -2364,6 +2364,7 @@ document.addEventListener("click", e=>{
   const wc = t.closest("[data-word]"); if(wc){ tapWord(wc); return; }
   if(t.closest("[data-reveal]")){ const r = $("#reveal"); if(r){ r.hidden = false; t.closest("[data-reveal]").hidden = true; } return; }
   if(t.closest("[data-home]")){ goHome(); return; }
+  const vf = t.closest("[data-verify]"); if(vf){ verifyName(vf.dataset.verify, vf.dataset.ok==="1"); return; }
   const dm = t.closest("[data-delmsg]"); if(dm){ deleteMessage(dm.dataset.delmsg); return; }
   const dl = t.closest("[data-del]"); if(dl && !dl.disabled){ deleteAccount(dl.dataset.del); return; }
   const rg = t.closest("[data-rpg]");
@@ -2507,6 +2508,41 @@ function authHTML(mode, msg){
   return intro + `<div class="auth-form">${tabs}${form}</div>`;
 }
 
+function pendingHTML(name, msg){
+  return `<div class="auth-intro"><span class="pill"><span class="dot"></span>Name check</span>
+      <h2 id="authTitle">Almost <span class="g">there!</span></h2>
+      <p class="lead">Our filter flagged <b>${esc(name)}</b> as possible gibberish. Some real names are rare enough to trip it.</p></div>
+    <div class="auth-form"><div class="fp-done"><span class="ok-ic">${IC.check}</span>
+      <h3 style="margin:0;font-size:22px;letter-spacing:-.02em">The Wunny admins will verify your name</h3>
+      <p class="lead" style="margin:0">Your account is saved. Once an admin accepts your name, you can start learning. Check back soon!</p>
+      <p class="gerr" id="gErr" role="alert">${esc(msg||"")}</p>
+      <button class="btn shine" type="button" id="pendCheck">Check again</button>
+      <p class="fine">Not your real name? <button class="linkish" type="button" id="pendOut">Log out and sign up again</button></p></div></div>`;
+}
+function openPending(msg){
+  const d = $("#authDlg");
+  $("#gIn").innerHTML = pendingHTML(AUTH.pending, msg);
+  if(!d.open) d.showModal();
+}
+async function checkPending(){
+  try{
+    const r = await api("/me");
+    if(r.user.pending) return openPending("Not verified yet. Thanks for your patience!");
+    AUTH.pending = null; signedIn(r, true);
+  }catch(e){
+    if(e.status===401){ AUTH.pending = null; AUTH.token = null; lsSet(TOKEN_KEY, null); return openAuth("signup", e.message); }
+    openPending(e.message);
+  }
+}
+async function leavePending(){
+  try{ await api("/logout", {method:"POST"}); }catch(e){}
+  AUTH.pending = null; AUTH.token = null; lsSet(TOKEN_KEY, null); openAuth("signup");
+}
+document.addEventListener("click", e=>{
+  if(e.target.closest("#pendCheck")) checkPending();
+  else if(e.target.closest("#pendOut")) leavePending();
+});
+
 function openAuth(mode="signup", msg=""){
   const d = $("#authDlg");
   $("#gIn").innerHTML = authHTML(mode, msg);
@@ -2561,6 +2597,7 @@ async function submitAuth(form){
 
 async function signedIn(r, isNew){
   if(r.token){ AUTH.token = r.token; lsSet(TOKEN_KEY, r.token); }
+  if(r.user && r.user.pending){ AUTH.profile = null; AUTH.pending = r.user.username; return openPending(); }
   AUTH.profile = r.user;
   mergeProgress(r.progress, r.epoch);
   const d = $("#authDlg");
@@ -3131,7 +3168,7 @@ function route(){
   }
   document.title = "Wunny Cantonese";
   if(!$("#home").hidden && !$("#authDlg").open) renderHome(); else show("home");
-  if(AUTH.on && !AUTH.profile && !$("#authDlg").open) openAuth("signup");
+  if(AUTH.on && !AUTH.profile && !$("#authDlg").open){ if(AUTH.pending) openPending(); else openAuth("signup"); }
 }
 const goHome = () => { if(location.hash && location.hash!=="#preview") location.hash = ""; else route(); };
 
@@ -3142,6 +3179,10 @@ function messagesHTML(){
   if(msgState==="error") return `<p class="empty">Messages couldn't load. Try Refresh.</p>`;
   if(!MESSAGES.length) return `<p class="empty">No messages yet.</p>`;
   return MESSAGES.map(m=>{
+    if(m.kind==="verify") return `<article class="msg pw"><div class="msg-h"><b>Name check</b><span class="badge pw">Verify name</span>
+      <span class="badge">${esc(m.username)}</span><span class="msg-date">${fmtDT(m.created)}</span>
+      <button class="ghost mini" type="button" data-verify="${esc(m.username)}" data-ok="1">Accept</button>
+      <button class="ghost mini" type="button" data-verify="${esc(m.username)}" data-ok="0">Decline</button></div><p>${esc(m.message)}</p></article>`;
     const pw = m.kind==="password", has = adminState==="ready" ? LEARNERS.some(l=>l.username===m.username) : m.exists;
     return `<article class="msg${pw ? " pw" : ""}"><div class="msg-h"><b>${esc(m.name || "No name")}</b>
       ${pw ? `<span class="badge pw">Forgot password</span>${has ? "" : `<span class="badge no">No account with this username</span>`}` : ""}
@@ -3152,12 +3193,25 @@ function messagesHTML(){
       <button class="ghost mini" type="button" data-delmsg="${esc(m.id)}">${pw ? "Done" : "Delete"}</button></div><p>${esc(m.message)}</p></article>`;
   }).join("");
 }
-function updateAdminDot(){ const b = $("#openAdmin"); if(b) b.classList.toggle("admin-dot", MESSAGES.some(m=>m.kind==="password")); }
+function updateAdminDot(){ const b = $("#openAdmin"); if(b) b.classList.toggle("admin-dot", MESSAGES.some(m=>m.kind==="password" || m.kind==="verify")); }
+async function verifyName(name, ok){
+  if(!ok && !confirm(`Decline ${name}? Their account will be removed.`)) return;
+  try{
+    await api("/admin/verify", {method:"POST", body:{username:name, accept:ok}});
+    MESSAGES = MESSAGES.filter(m=>!(m.kind==="verify" && m.username===name));
+    if(ok){ const l = LEARNERS.find(x=>x.username===name); if(l) l.pending = false; } else LEARNERS = LEARNERS.filter(x=>x.username!==name);
+    const el = $("#adminMsgs"); if(el) el.innerHTML = messagesHTML();
+    const c = $("#msgCount"); if(c) c.textContent = MESSAGES.length;
+    const t = $("#adminTbl"); if(t) t.innerHTML = adminTable();
+    updateAdminDot(); toast(ok ? `${name} can now use Wunny` : `${name} was declined`);
+  }catch(e){ toast(e.message); }
+}
 async function adminAlert(){
   try{
     MESSAGES = (await api("/admin/messages")).messages || []; msgState = "ready"; updateAdminDot();
-    const n = MESSAGES.filter(m=>m.kind==="password").length;
-    if(n) setTimeout(()=>toast(`${n} forgot-password request${n===1?"":"s"} waiting. Open Learners to help.`), 2200);
+    const n = MESSAGES.filter(m=>m.kind==="password").length, v = MESSAGES.filter(m=>m.kind==="verify").length;
+    const bits = [n && `${n} forgot-password request${n===1?"":"s"}`, v && `${v} name${v===1?"":"s"} to verify`].filter(Boolean);
+    if(bits.length) setTimeout(()=>toast(`${bits.join(" and ")} waiting. Open Learners to help.`), 2200);
   }catch(e){}
 }
 async function loadMessages(){
@@ -3246,7 +3300,7 @@ function renderAdmin(){
           <input class="inp" id="histSearch" type="search" placeholder="Filter by username" value="${esc(histQ)}" autocapitalize="none" spellcheck="false"></div>
         <ul class="hist allhist" id="allHist">${allHistHTML()}</ul></section>
       <section class="rise" style="--i:5"><h2 class="admin-h2">Messages <span class="badge" id="msgCount">${MESSAGES.length}</span></h2>
-        <p class="lead" style="margin:4px 0 12px">Sent through the Contact page and the “Forgot your password?” button.</p>
+        <p class="lead" style="margin:4px 0 12px">Sent through the Contact page, the “Forgot your password?” button, and names flagged at sign-up.</p>
         <div class="msgs" id="adminMsgs">${messagesHTML()}</div></section>
     </main>`;
 }
@@ -3788,8 +3842,8 @@ async function boot(){
   renderVoiceBits();
   if(!AUTH.on) return route();
   if(AUTH.token){
-    try{ const r = await api("/me"); AUTH.profile = r.user; mergeProgress(r.progress, r.epoch); route(); if(amAdmin()) adminAlert(); return; }
-    catch(e){ if(e.status!==401) return route(); AUTH.token = null; lsSet(TOKEN_KEY, null); }
+    try{ const r = await api("/me"); if(r.user.pending){ AUTH.pending = r.user.username; return route(); } AUTH.profile = r.user; mergeProgress(r.progress, r.epoch); route(); if(amAdmin()) adminAlert(); return; }
+    catch(e){ if(e.status!==401) return route(); AUTH.token = null; lsSet(TOKEN_KEY, null); if(e.data && e.data.declined){ route(); return openAuth("signup", e.message); } }
   }
   route();
 }

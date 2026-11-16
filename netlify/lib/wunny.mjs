@@ -32,7 +32,32 @@ async function checkPassword(password, user) {
 }
 
 const isAdmin = (name) => ADMINS.includes(name);
-const publicUser = (u) => ({ username: u.username, admin: isAdmin(u.username) });
+const publicUser = (u) => ({ username: u.username, admin: isAdmin(u.username), ...(u.pending ? { pending: true } : {}) });
+
+// Gibberish check for new usernames (first + last name as one word).
+// It only flags: a flagged name still gets an account, but waits for an admin to accept it,
+// so rare real names are never turned away by the filter alone.
+const KEY_RUNS = ["qwertyuiop", "asdfghjkl", "zxcvbnm", "abcdefghijklmnopqrstuvwxyz"];
+const ODD_PAIRS = /jq|qj|qx|xq|qz|zq|xj|jx|zx|xz|vq|qv|fq|qf|jz|zj|vx|xv|qg|gq|qk|kq|qw|wq|qy|yq|vj|jv|fj|jf|pq|qp|zj|bx|xb|cj|jc|gx|xg|kx|xk|mx|xm|qc|cq|vw|wv|kz|zk|fv|vf/;
+export function gibberishReasons(name) {
+  const why = [];
+  const vowels = (name.match(/[aeiouy]/g) || []).length;
+  if (name.length < 3) why.push("too short");
+  if (!vowels) why.push("no vowels");
+  else if (name.length >= 6 && vowels / name.length < 0.2) why.push("very few vowels");
+  else if (name.length >= 6 && vowels / name.length > 0.8) why.push("almost all vowels");
+  if (/[^aeiouy]{6,}/.test(name)) why.push("long run of consonants");
+  if (/(.)\1\1/.test(name)) why.push("same letter 3 times in a row");
+  if (/(.{2,4})\1\1/.test(name)) why.push("repeating pattern");
+  if (ODD_PAIRS.test(name)) why.push("unusual letter pairs");
+  for (const row of KEY_RUNS)
+    for (let i = 0; i + 4 <= row.length; i++) {
+      const bit = row.slice(i, i + 4);
+      if (name.includes(bit) || name.includes([...bit].reverse().join(""))) { why.push("keyboard or alphabet run"); i = row.length; }
+    }
+  if (name.length >= 8 && new Set(name).size / name.length < 0.35) why.push("too few different letters");
+  return [...new Set(why)];
+}
 
 // Progress is the app's own save object; keep it a plain object of sensible size.
 function cleanProgress(p) {
@@ -185,7 +210,17 @@ export function makeHandler(store, getEnv = () => undefined) {
           fails: 0,
           lockUntil: 0,
         };
+        const why = gibberishReasons(username);
+        if (why.length) user.pending = true;
         await putUser(user);
+        await store.delete("declined/" + username);
+        if (why.length) {
+          const id = now + "-" + crypto.randomBytes(4).toString("hex");
+          await store.setJSON("messages/" + id, {
+            id, kind: "verify", name: "Name check", username, reasons: why, created: now,
+            message: `${username} signed up, but the name was flagged as possible gibberish (${why.join(", ")}). Accept it if it's a real name, or decline it.`,
+          });
+        }
         const token = await newSession(username);
         return json(201, { token, user: publicUser(user), progress: user.progress, epoch: 0 });
       }
@@ -255,8 +290,19 @@ export function makeHandler(store, getEnv = () => undefined) {
       }
 
       const auth = await authenticate(req);
-      if (!auth) return json(401, { error: "Please log in again." });
+      if (!auth) {
+        const m = (req.headers.get("authorization") || "").match(/^Bearer ([A-Za-z0-9_-]{20,100})$/);
+        const s = m && (await store.get(sessionKey(m[1]), { type: "json" }));
+        if (s && (await store.get("declined/" + s.username, { type: "json" }))) {
+          await store.delete(sessionKey(m[1]));
+          return json(401, { declined: true, error: "The Wunny team couldn't verify that name, so the account was removed. Sign up again with your real first and last name, or reach us on the Contact page." });
+        }
+        return json(401, { error: "Please log in again." });
+      }
       const me = auth.user;
+      // Flagged names wait here until an admin accepts them.
+      if (me.pending && !["/me", "/logout"].includes(path))
+        return json(403, { pending: true, error: "Your name is waiting for the Wunny team to verify it." });
 
       if (path === "/me" && method === "GET") {
         me.lastSeen = Date.now();
@@ -326,6 +372,7 @@ export function makeHandler(store, getEnv = () => undefined) {
               admin: isAdmin(u.username),
               created: u.created,
               lastSeen: u.lastSeen,
+              pending: !!u.pending,
               progress: u.progress || null,
             })),
           });
@@ -349,6 +396,28 @@ export function makeHandler(store, getEnv = () => undefined) {
           const target = USERNAME.test(name) ? await getUser(name) : null;
           if (!target) return json(404, { error: "There's no learner with that username." });
           await store.delete(userKey(name));
+          return json(200, { ok: true });
+        }
+
+        // Accept or decline a name flagged as possible gibberish.
+        if (path === "/admin/verify" && method === "POST") {
+          const b = await readBody(req);
+          const name = String(b.username || "");
+          const target = USERNAME.test(name) ? await getUser(name) : null;
+          if (!target) return json(404, { error: "There's no learner with that username." });
+          if (b.accept) {
+            delete target.pending;
+            await putUser(target);
+          } else {
+            if (isAdmin(name)) return json(403, { error: "Admin accounts can't be declined." });
+            await store.delete(userKey(name));
+            await store.setJSON("declined/" + name, { at: Date.now() });
+          }
+          const { blobs } = await store.list({ prefix: "messages/" });
+          for (const x of blobs) {
+            const m = await store.get(x.key, { type: "json" });
+            if (m && m.kind === "verify" && m.username === name) await store.delete(x.key);
+          }
           return json(200, { ok: true });
         }
 
