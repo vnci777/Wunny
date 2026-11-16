@@ -493,6 +493,21 @@ button.linkish:hover{text-decoration-color:currentColor}
 .reveal{text-align:center}
 .reveal .szh{font-size:24px}
 .build-en{font-size:19px;color:var(--ink);font-weight:600}
+.hw{position:relative;display:inline-block;cursor:help;border-bottom:2px dotted var(--sky,#3AA7FF);line-height:1.25;outline:0}
+.hw-tip{position:absolute;left:50%;bottom:calc(100% + 10px);transform:translate(-50%,4px);opacity:0;pointer-events:none;z-index:30;white-space:nowrap;
+  display:flex;flex-direction:column;align-items:center;gap:1px;padding:8px 12px;border-radius:12px;background:#fff;border:1.5px solid #CFE3FF;box-shadow:0 3px 0 #1677F2;transition:opacity .15s,transform .15s}
+.hw-tip::after{content:"";position:absolute;left:50%;top:100%;width:10px;height:10px;background:#fff;border-right:1.5px solid #CFE3FF;border-bottom:1.5px solid #CFE3FF;transform:translate(-50%,-5px) rotate(45deg)}
+.hw-tip b{font-family:var(--f-han);font-size:20px;font-weight:800;color:var(--ink);letter-spacing:0}
+.hw-tip i{font-style:normal;font-size:12px;font-weight:700;color:#0B58C9}
+.hw:hover .hw-tip,.hw:focus .hw-tip,.hw.on .hw-tip{opacity:1;transform:translate(-50%,0)}
+.hint-note{margin:6px 0 0;font-size:12.5px;font-weight:600;color:var(--faint,#56677D)}
+.picq{position:relative}
+.picq.hov{cursor:help;outline:0}
+.pic-en{position:absolute;left:50%;bottom:14px;transform:translate(-50%,6px);opacity:0;pointer-events:none;padding:7px 14px;border-radius:999px;
+  background:#fff;border:1.5px solid #CFE3FF;box-shadow:0 3px 0 #1677F2;font-size:16px;font-weight:800;letter-spacing:-.01em;color:var(--ink);white-space:nowrap;transition:opacity .15s,transform .15s}
+.picq.hov:hover .pic-en,.picq.hov:focus .pic-en,.picq.hov.on .pic-en{opacity:1;transform:translate(-50%,0)}
+.sp-rules{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:8px}
+.sp-rules li{padding:11px 14px;border-radius:14px;background:#EEF6FF;font-weight:600;color:var(--ink)}
 .build-ans{min-height:64px;display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:10px 12px;border-radius:18px;border:2px dashed var(--line-2);background:#fff;transition:border-color .2s,background .2s}
 .build-ans.right{border-style:solid;border-color:var(--good);background:var(--good-bg)}
 .build-ans.wrong{border-style:solid;border-color:var(--bad);background:var(--bad-bg);animation:shake .35s}
@@ -1251,6 +1266,16 @@ img{height:auto}
 <dialog id="tonesDlg" aria-labelledby="tonesTitle"><div class="dlg">
   <div class="dlg-h"><h2 id="tonesTitle">Tones guide</h2><button class="icon-btn" type="button" data-close aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
   <div id="tonesBox" style="display:flex;flex:1;min-height:0"></div>
+</div></dialog>
+<dialog id="spDlg" aria-labelledby="spTitle"><div class="dlg">
+  <h2 id="spTitle" style="margin:0;font-size:24px;letter-spacing:-.03em;text-align:center">Before you start</h2>
+  <p class="lead" style="text-align:center;margin:0">The speed round is just for practice.</p>
+  <ul class="sp-rules">
+    <li>Get as many right as you can.</li>
+    <li>There's no end score to reach.</li>
+    <li>There's no "correct" score, either.</li>
+  </ul>
+  <div class="row" style="justify-content:center"><button class="btn" type="button" id="spOk">Okay, I understand</button></div>
 </div></dialog>
 <dialog id="bonusDlg" aria-labelledby="bonusTitle"><div class="dlg" id="bonusIn"></div></dialog>
 <dialog id="groupDlg" aria-labelledby="groupTitle"><div class="dlg" id="groupIn"></div></dialog>
@@ -2342,6 +2367,9 @@ document.addEventListener("click", e=>{
   const t = e.target;
   uiTap(t);
   const sayB = t.closest("[data-say]"); if(sayB){ speak(sayB.dataset.say, !!sayB.dataset.slow, sayB.classList.contains("slow") ? null : sayB); return; }
+  const hov = t.closest("[data-hov]");
+  document.querySelectorAll("[data-hov].on").forEach(x=>{ if(x!==hov) x.classList.remove("on"); });
+  if(hov){ hov.classList.toggle("on"); return; }
   const opt = t.closest(".opt"); if(opt){ select(+opt.dataset.k); return; }
   const st = t.closest("[data-start]"); if(st){ startLesson(+st.dataset.start, "new"); return; }
   const ch = t.closest("[data-challenge]"); if(ch){ startLesson(+ch.dataset.challenge, "challenge"); return; }
@@ -2720,6 +2748,38 @@ function segment(text){
   }
   return toks;
 }
+/* Word hints for Build the sentence: hover an English word to see its Cantonese.
+   Format per sentence: "english=中文=jyutping;..." */
+const WHINT = {"浣熊好可愛！": "Raccoons=浣熊=wun5 hung4;so=好=hou2;cute=可愛=ho2 oi3", "你好，我係 Wunny！": "Hello=你好=nei5 hou2;I'm=我係=ngo5 hai6", "我係浣熊。": "I'm=我係=ngo5 hai6;raccoon=浣熊=wun5 hung4", "你係浣熊？": "You're=你係=nei5 hai6;raccoon=浣熊=wun5 hung4", "我係學生。": "I'm=我係=ngo5 hai6;student=學生=hok6 saang1", "你好叻！": "You're=你=nei5;so=好=hou2;smart=叻=lek1", "唔該，一杯茶。": "a cup of=一杯=jat1 bui1;tea=茶=caa4;please=唔該=m4 goi1", "多謝你！": "Thank you=多謝你=do1 ze6 nei5", "唔好意思，我遲到。": "Sorry=唔好意思=m4 hou2 ji3 si1;I'm=我=ngo5;late=遲到=ci4 dou3", "對唔住，係我錯。": "I'm sorry=對唔住=deoi3 m4 zyu6;it's=係=hai6;my=我=ngo5;fault=錯=co3", "早晨！你好嗎？": "Morning=早晨=zou2 san4;How are you=你好嗎=nei5 hou2 maa3", "拜拜，聽日見！": "Bye=拜拜=baai1 baai3;see you=見=gin3;tomorrow=聽日=ting1 jat6", "我唔係老師。": "I'm=我=ngo5;not=唔係=m4 hai6;teacher=老師=lou5 si1", "去食飯？好呀！": "Go=去=heoi3;eat=食飯=sik6 faan6;Sure=好呀=hou2 aa3", "我明喇。": "I=我=ngo5;get it=明=ming4;now=喇=laa3", "對唔住，我唔明。": "Sorry=對唔住=deoi3 m4 zyu6;I=我=ngo5;don't understand=唔明=m4 ming4", "冇問題，我幫你。": "No problem=冇問題=mou5 man6 tai4;I'll=我=ngo5;help=幫=bong1;you=你=nei5", "唔緊要，慢慢嚟。": "It's OK=唔緊要=m4 gan2 jiu3;take your time=慢慢嚟=maan6 maan2 lai4", "佢係我朋友。": "He's=佢係=keoi5 hai6;my=我=ngo5;friend=朋友=pang4 jau5", "我哋係學生。": "We're=我哋係=ngo5 dei6 hai6;students=學生=hok6 saang1", "你哋好！": "Hi=好=hou2;everyone=你哋=nei5 dei6", "佢哋喺屋企。": "They're=佢哋=keoi5 dei6;at=喺=hai2;home=屋企=uk1 kei2", "呢個係我嘅。": "This=呢個=ni1 go3;is=係=hai6;mine=我嘅=ngo5 ge3", "佢係我嘅好朋友。": "She's=佢係=keoi5 hai6;my=我嘅=ngo5 ge3;good=好=hou2;friend=朋友=pang4 jau5", "我叫 Wunny。": "My name is=我叫=ngo5 giu3", "你叫咩名？": "What's=咩=me1;your=你=nei5;name=名=meng2", "你個名好靚。": "Your name=你個名=nei5 go3 meng2;is=好=hou2;beautiful=靚=leng3", "佢係邊個？": "Who=邊個=bin1 go3;is=係=hai6;he=佢=keoi5", "我識佢。": "I=我=ngo5;know=識=sik1;her=佢=keoi5", "你好！好開心識到你。": "Hi=你好=nei5 hou2;Nice=好開心=hou2 hoi1 sam1;to meet=識到=sik1 dou2;you=你=nei5", "對唔住，我唔識講廣東話。": "Sorry=對唔住=deoi3 m4 zyu6;I=我=ngo5;can't=唔識=m4 sik1;speak=講=gong2;Cantonese=廣東話=gwong2 dung1 waa2", "唔該你講慢啲。": "Please=唔該=m4 goi1;speak=講=gong2;more slowly=慢啲=maan6 di1", "唔該再講一次。": "say=講=gong2;it again=再…一次=zoi3 … jat1 ci3;please=唔該=m4 goi1", "你識唔識講英文？": "Do you=你識唔識=nei5 sik1 m4 sik1;speak=講=gong2;English=英文=jing1 man2", "我學緊廣東話。": "I'm=我=ngo5;learning=學緊=hok6 gan2;Cantonese=廣東話=gwong2 dung1 waa2", "我要一個。": "I=我=ngo5;want=要=jiu3;one=一個=jat1 go3", "我住二樓。": "I=我=ngo5;live=住=zyu6;second floor=二樓=ji6 lau2", "而家三點。": "three o'clock=三點=saam1 dim2;now=而家=ji4 gaa1", "我四月去香港。": "I'm=我=ngo5;going=去=heoi3;Hong Kong=香港=hoeng1 gong2;April=四月=sei3 jyut6", "呢個五蚊。": "This one=呢個=ni1 go3;five dollars=五蚊=ng5 man1", "今日零度，好凍！": "zero degrees=零度=ling4 dou6;today=今日=gam1 jat6;So=好=hou2;cold=凍=dung3", "我六點起身。": "I=我=ngo5;get up=起身=hei2 san1;at six=六點=luk6 dim2", "一個星期有七日。": "A week=一個星期=jat1 go3 sing1 kei4;has=有=jau5;seven days=七日=cat1 jat6", "我坐八號巴士。": "I=我=ngo5;take=坐=co5;number 8=八號=baat3 hou6;bus=巴士=baa1 si2", "支水九蚊。": "bottle of water=支水=zi1 seoi2;nine dollars=九蚊=gau2 man1", "我哋有十個人。": "There are=有=jau5;ten=十個人=sap6 go3 jan4;us=我哋=ngo5 dei6", "呢件衫一百蚊。": "This=呢件=ni1 gin6;shirt=衫=saam1;a hundred dollars=一百蚊=jat1 baak3 man1", "我要兩個。": "I=我=ngo5;want=要=jiu3;two=兩個=loeng5 go3", "呢個好食。": "This one=呢個=ni1 go3;tasty=好食=hou2 sik6", "你有幾多個朋友？": "How many=幾多個=gei2 do1 go3;friends=朋友=pang4 jau5;have=有=jau5;you=你=nei5", "呢個幾錢？": "How much=幾錢=gei2 cin2;this=呢個=ni1 go3", "三十蚊。": "Thirty=三十=saam1 sap6;dollars=蚊=man1", "好平呀！": "so=好=hou2;cheap=平=peng4", "我哋去食飯。": "Let's=我哋=ngo5 dei6;go=去=heoi3;eat=食飯=sik6 faan6", "你飲咩？": "What=咩=me1;you=你=nei5;drink=飲=jam2", "唔該，一杯水。": "A glass of=一杯=jat1 bui1;water=水=seoi2;please=唔該=m4 goi1", "我哋去飲茶！": "Let's=我哋=ngo5 dei6;go=去=heoi3;dim sum=飲茶=jam2 caa4", "我每日飲咖啡。": "I=我=ngo5;drink=飲=jam2;coffee=咖啡=gaa3 fe1;every day=每日=mui5 jat6", "你食咗飯未？": "Have you=你=nei5;eaten=食咗飯=sik6 zo2 faan6;yet=未=mei6", "我要呢個。": "I'll have=我要=ngo5 jiu3;this one=呢個=ni1 go3", "我鍾意呢個。": "I=我=ngo5;like=鍾意=zung1 ji3;this one=呢個=ni1 go3", "唔該，我要嗰個。": "That one=嗰個=go2 go3;please=唔該，我要=m4 goi1, ngo5 jiu3", "唔該埋單！": "The bill=埋單=maai4 daan1;please=唔該=m4 goi1", "呢度啲蝦餃好好食！": "shrimp dumplings=蝦餃=haa1 gaau2;here=呢度=ni1 dou6;so=好=hou2;good=好食=hou2 sik6", "我好肚餓！": "I'm=我=ngo5;so=好=hou2;hungry=肚餓=tou5 ngo6", "你住喺邊度？": "Where=邊度=bin1 dou6;you=你=nei5;live=住喺=zyu6 hai2", "我喺學校。": "I'm=我=ngo5;at=喺=hai2;school=學校=hok6 haau6", "我喺呢度！": "I'm=我喺=ngo5 hai2;here=呢度=ni1 dou6", "洗手間喺嗰度。": "restroom=洗手間=sai2 sau2 gaan1;is=喺=hai2;over there=嗰度=go2 dou6", "唔該，洗手間喺邊度？": "Excuse me=唔該=m4 goi1;where's=喺邊度=hai2 bin1 dou6;restroom=洗手間=sai2 sau2 gaan1", "我而家返屋企。": "I'm=我=ngo5;heading=返=faan1;home=屋企=uk1 kei2;now=而家=ji4 gaa1", "你做緊乜嘢？": "What=乜嘢=mat1 je5;you=你=nei5;doing=做緊=zou6 gan2", "你幾時嚟？": "When=幾時=gei2 si4;you=你=nei5;coming=嚟=lai4", "點解你咁開心？": "Why=點解=dim2 gaai2;you=你=nei5;so=咁=gam3;happy=開心=hoi1 sam1", "去機場點樣去？": "How=點樣=dim2 joeng2;get to=去=heoi3;airport=機場=gei1 coeng4", "我未食飯。": "I=我=ngo5;haven't=未=mei6;eaten=食飯=sik6 faan6", "你有冇 Wi-Fi？": "Do you have=你有冇=nei5 jau5 mou5", "我想去香港。": "I=我=ngo5;want to=想=soeng2;go=去=heoi3;Hong Kong=香港=hoeng1 gong2", "我鍾意飲奶茶。": "I=我=ngo5;like=鍾意=zung1 ji3;drinking=飲=jam2;milk tea=奶茶=naai5 caa4", "我有一隻貓。": "I=我=ngo5;have=有=jau5;a=一隻=jat1 zek3;cat=貓=maau1", "我冇錢。": "I=我=ngo5;have no=冇=mou5;money=錢=cin2", "今日好熱。": "It's=好=hou2;hot=熱=jit6;today=今日=gam1 jat6", "聽日見！": "See you=見=gin3;tomorrow=聽日=ting1 jat6"};
+function hintPairs(it){
+  const raw = WHINT[it.ex.zh];
+  if(raw) return raw.split(";").map(p=>{ const [en, zh, jp] = p.split("="); return {en, zh, jp}; });
+  // No hand-made hints (e.g. bonus lessons): use course words found in this sentence.
+  const out = [];
+  ALL.forEach(l=>l.items.forEach(x=>{
+    if(!x.zh || !it.ex.zh.includes(x.zh)) return;
+    x.en.split("/").map(e=>e.replace(/\(.*?\)|…/g,"").trim()).filter(e=>e.length>1).forEach(e=>out.push({en:e, zh:x.zh, jp:x.jp}));
+  }));
+  return out;
+}
+function hintEN(it){
+  const text = it.ex.en, pairs = hintPairs(it).sort((a,b)=>b.en.length-a.en.length), marks = [];
+  const reEsc = v => v.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  pairs.forEach(h=>{
+    const re = new RegExp("(^|[^A-Za-z'’])(" + reEsc(h.en) + ")(?![A-Za-z])", "i"), m = re.exec(text);
+    if(!m) return;
+    const a = m.index + m[1].length, b = a + m[2].length;
+    if(marks.some(x=>a < x.b && b > x.a)) return;
+    marks.push({a, b, h});
+  });
+  marks.sort((x,y)=>x.a-y.a);
+  let html = "", at = 0;
+  marks.forEach(({a,b,h})=>{
+    html += esc(text.slice(at, a)) + `<span class="hw" tabindex="0" data-hov>${esc(text.slice(a,b))}<span class="hw-tip" role="tooltip"><b lang="zh-HK">${esc(h.zh)}</b>${h.jp ? `<i>${esc(h.jp)}</i>` : ""}</span></span>`;
+    at = b;
+  });
+  return html + esc(text.slice(at));
+}
 const buildable = it => { const n = segment(it.ex.zh).length; return n >= 3 && n <= 7; };
 
 function sentenceOpts(it, n){
@@ -2759,7 +2819,7 @@ const EXTRA = {
     }
     Q.ans = [];
     return {needSel:true, h:`<div class="qtop">${tagH}</div><h2 class="qh">Build the sentence</h2>
-      <p class="lead build-en">“${esc(it.ex.en)}”</p>
+      <p class="lead build-en">“${hintEN(it)}”</p><p class="hint-note">Hover or tap a dotted word to see it in Cantonese.</p>
       ${HARD() ? "" : `<div class="audio" style="justify-content:flex-start;margin:0">${spkBtn(it.ex.zh,"Play the sentence","sm")}${slowBtn(it.ex.zh)}</div>`}
       <div class="build-ans" id="bAns" aria-label="Your sentence" aria-live="polite"><span class="build-ph">Tap the words below in order</span></div>
       <div class="build-bank" id="bBank">${st.bank.map((b,k)=>`<button class="tile" type="button" data-tile="${k}" lang="zh-HK">${esc(b.t)}</button>`).join("")}</div>`};
@@ -2777,7 +2837,8 @@ const EXTRA = {
   pic(st, it, tagH){
     st.opts = st.opts || shuffle([it, ...distractors(it, NOPT(), "zh")]);
     return {h:`<div class="qtop">${tagH}</div><h2 class="qh">Which word matches the picture?</h2>
-      <div class="picq">${ciImg(it,"ci-q")}</div>${optsHTML(st,"zh")}`};
+      <div class="picq hov" tabindex="0" data-hov aria-label="Picture hint: ${esc(it.en)}">${ciImg(it,"ci-q")}<span class="pic-en">${esc(it.en)}</span></div>
+      <p class="hint-note" style="text-align:center">Stuck? Hover or tap the picture to see the English word.</p>${optsHTML(st,"zh")}`};
   },
   gboard(st, it, tagH){
     return {needSel:false, primary:"Keep going", h:`<div class="gboard"><span class="pill"><span class="dot"></span>Round ${Q.round-1} done</span>
@@ -2869,7 +2930,16 @@ function finishMatch(st){
    and a red, ticking, pulsing last 10 seconds. Three right in a row adds 2 seconds. */
 const SP_SECS = 30;
 function bgmRate(r){ try{ if(BGM.el){ BGM.el.preservesPitch = true; BGM.el.playbackRate = r; } }catch(e){} }
+/* Before every speed round: a short note on how it's scored. */
 function speedStart(){
+  const d = $("#spDlg"); if(!d) return speedGo();
+  if(d.open) return;
+  $("#spOk").onclick = () => { d.close(); speedGo(); };
+  d.oncancel = e => e.preventDefault();
+  d.showModal(); $("#spOk").focus();
+}
+function speedGo(){
+  if(!Q) return;
   const st = cur(); Q.checked = false;
   const SECS = st.secs || SP_SECS;
   Q.sp = {score:0, end:Infinity, total:SECS*1000, secs:SECS, hurry:SECS >= 30 ? 10 : 5, quick:!!st.quick, q:null, last:null, run:0, lastSec:null};
