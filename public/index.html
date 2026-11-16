@@ -533,16 +533,14 @@ button.linkish:hover{text-decoration-color:currentColor}
 .hintbtn:hover:not(:disabled){border-color:var(--sky)}
 .hintbtn:disabled{opacity:.5;cursor:default}
 .opt.gone{opacity:.28;filter:grayscale(1);box-shadow:none;transform:scale(.98)}
-.spic{position:relative;margin:0;border-radius:20px;overflow:hidden;aspect-ratio:16/10;background:#7a2a0e;box-shadow:0 4px 0 #f0c9a8;border:1px solid #f6d7bd}
-.spic img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 58%;transition:transform .6s cubic-bezier(.2,1,.3,1)}
-.spic:hover img{transform:scale(1.04)}
-.spic figcaption{position:absolute;left:10px;right:10px;bottom:10px;padding:9px 13px;border-radius:14px;background:rgba(255,255,255,.9);backdrop-filter:blur(8px);font-size:13.5px;font-weight:700;color:var(--ink);line-height:1.35}
+.spic{margin:0;border-radius:20px;overflow:hidden;background:#fff;box-shadow:0 4px 0 #f0c9a8;border:1px solid #f6d7bd;display:flex;flex-direction:column}
+.spic img{display:block;width:100%;height:auto;aspect-ratio:1/1;object-fit:contain}
+.spic figcaption{padding:11px 14px 13px;font-size:13.5px;font-weight:700;color:var(--ink);line-height:1.35;background:#fff}
 .spic figcaption small{display:block;font-size:10.5px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:#E2541B}
-.spic.lost img{object-position:50% 72%}
 .spic.lost{background:#1d1e22;box-shadow:0 4px 0 #3a3c44;border-color:#2b2d33}
-.spic.lost figcaption{background:rgba(24,25,30,.82);color:#e9ebf0}
+.spic.lost figcaption{background:#1d1e22;color:#e9ebf0}
 .spic.lost figcaption small{color:#9aa3b2}
-.done-art.streak-pic{width:220px;height:220px;object-fit:cover;border-radius:32px;box-shadow:0 6px 0 #f0c9a8,0 20px 40px -14px rgba(226,84,27,.5)}
+.done-art.streak-pic{width:220px;height:220px;object-fit:contain;border-radius:32px;box-shadow:0 6px 0 #f0c9a8,0 20px 40px -14px rgba(226,84,27,.5)}
 .demo-pic{width:96px;height:96px;object-fit:contain;margin:0 auto 4px}
 .sp-rules{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:8px}
 .sp-rules li{padding:11px 14px;border-radius:14px;background:#EEF6FF;font-weight:600;color:var(--ink)}
