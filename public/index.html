@@ -2157,7 +2157,7 @@ function renderStep(){
   else if(st.t==="hear"){
     st.opts = st.opts || shuffle([it, ...distractors(it,NOPT(),"en")]);
     h = `<div class="qtop">${tagH}</div><h2 class="qh">Listen. What does it mean?</h2>
-      <div class="listen"><img class="det" src="${ART.detective}" alt="">
+      <div class="listen">
       <button class="bigplay main" type="button" data-say="${esc(it.zh)}" aria-label="Play the audio">${IC.spk}</button>${slowBtn(it.zh)}</div>
       ${optsHTML(st,"en")}`;
     needSel = true; say = it.zh;
