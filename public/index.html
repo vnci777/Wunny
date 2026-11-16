@@ -315,6 +315,9 @@ dialog[open]{animation:rise .25s ease both}
 .row{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end}
 
 /* sign-up pop-up */
+.namewarn{margin:8px 0 0;padding:10px 12px 10px 38px;position:relative;border-radius:12px;background:#FFF4E5;border:1px solid #FFD8A8;color:#7A4100;font-size:13px;font-weight:600;line-height:1.4}
+.namewarn::before{content:"!";position:absolute;left:11px;top:10px;width:18px;height:18px;border-radius:50%;background:#F08C00;color:#fff;font-size:12px;font-weight:900;display:grid;place-items:center}
+.namewarn b{color:#5C3100}
 .gate-card,.inp,.rule,.tile,.tbl-wrap{box-sizing:border-box}
 #authDlg{box-sizing:border-box;width:min(900px,calc(100vw - 32px));max-height:calc(100vh - 12px);max-height:calc(100dvh - 12px);overflow-x:hidden;overflow-y:auto;background:transparent;box-shadow:none;padding:96px 0 12px;border-radius:0}
 #authDlg::backdrop{background:rgba(11,27,51,.38);backdrop-filter:blur(6px)}
@@ -2114,7 +2117,7 @@ function resetBar(){
 }
 
 function renderStep(){
-  const st = cur(), it = st.it, L = Q.L;
+  const st = cur(), it = st.it, L = st.L || Q.L;
   Q.sel = null; Q.checked = false;
   $("#stage").classList.remove("review");
   setProgress(); resetBar();
@@ -2143,7 +2146,7 @@ function renderStep(){
       <h2 class="qh sr">New word: ${esc(it.en)}</h2>
       <div class="word">${ciImg(it,"ci-big")}<div class="zh" lang="zh-HK">${esc(it.zh)}</div><div class="jp">${jpHTML(it.jp)}</div>${traceHTML(it.jp)}<div class="en">${esc(it.en)}</div>
       <div class="audio">${spkBtn(it.zh,"Play "+it.en+" in Cantonese","main")}${slowBtn(it.zh)}</div></div>`;
-    if(Q.mode==="group") h += `<div class="demo-help"><p><b>New word!</b> Tap the speaker and say it once. A question about this word comes next.</p></div>`;
+    if(Q.mode==="group") h += `<div class="demo-help"><p><b>New word!</b> Look at the picture, tap the speaker, and say it out loud once. You'll practise it in a moment.</p></div>`;
     primary = "Continue"; $("#ctxBtn").hidden = false;
     if(S.set.auto) say = it.zh;
   }
@@ -2551,6 +2554,7 @@ function authHTML(mode, msg){
     ? `<form class="gform" id="signupForm" novalidate>
       <div class="field"><label for="suUser">Username</label>
         <p class="rule" id="suRule">Your <b>first and last name</b> as one word, all lowercase, with no spaces, numbers or symbols. Jane Doe would type <b>janedoe</b>.</p>
+        <p class="namewarn" role="note"><b>Use your real name.</b> Fake, joke or offensive names won't get an account. If one slips through, we'll delete it.</p>
         <input class="inp" id="suUser" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" maxlength="32" placeholder="firstnamelastname" aria-describedby="suRule uStat">
         <p class="ustat" id="uStat" aria-live="polite"></p></div>
       <div class="pwrow"><div class="field"><label for="suPass">Password</label>
@@ -2623,6 +2627,7 @@ document.addEventListener("click", e=>{
   else if(e.target.closest("#pendOut")) leavePending();
 });
 
+const BLOCKED_NAME_PARTS = ["torture","murder","killer","kills","killing","suicide","terror","nazis","hitler","rapist","raping","porno","sexy","fuck","bullshit","shitty","bitch","cunt","penis","vagina","nigg","faggot","retard","slut","whore","hentai","boobs","poop","fart","kkk","pedo","molest","incest","cocaine","deez","nuts","balls","dildo","horny","jizz","wank","twat","bastard","damn","satan","devil","demon","death","dead","blood","stab","shoot","bomb","jihad","slave","racist","fake","anon","nobody","noname","unknown","asdf","qwerty","test","admin","guest","username","password","wunny","raccoon","lol","lmao","haha","hehe","bruh","sigma","skibidi","rizz","gyat","ohio","mewing","poggers","yeet","noob","troll","idiot","stupid","dumb","loser","sucks","ugly","fatass","hacker","spam","demo","sample","example","janedoe","johndoe","firstname","lastname","epic","legend","queen","batman","superman","spiderman","pikachu","sonic","naruto","goku","shrek","barbie","awesome","angry"];
 function openAuth(mode="signup", msg=""){
   const d = $("#authDlg");
   $("#gIn").innerHTML = authHTML(mode, msg);
@@ -2659,6 +2664,7 @@ async function submitAuth(form){
     if(!u) return gErr("Enter a username: your first and last name together, like janedoe.");
     if(!/^[a-z]+$/.test(u)) return gErr("Usernames can only use lowercase English letters, a to z.");
     if(u.length < 2) return gErr("That username looks too short. Use your first and last name together.");
+    if(BLOCKED_NAME_PARTS.some(w=>u.includes(w))) return gErr("That doesn't look like a real first and last name. Wunny only makes accounts for real names.");
     if(p.length < 8) return gErr("Your password needs at least 8 characters.");
     if(p !== p2) return gErr("The two passwords don't match. Type them again.");
     busy(true, "Creating your account…");
@@ -2764,6 +2770,7 @@ document.addEventListener("input", e=>{
   const st = $("#uStat");
   if(!v){ st.className = "ustat"; st.textContent = ""; }
   else if(/[^a-z]/.test(v)){ st.className = "ustat no"; st.textContent = "Only lowercase letters a to z. Take out numbers, symbols or accents."; }
+  else if(BLOCKED_NAME_PARTS.some(w=>v.includes(w))){ st.className = "ustat no"; st.textContent = "That doesn't look like a real name. Use your real first and last name."; }
   else { st.className = "ustat ok"; st.textContent = `Your username will be ${v}`; }
 });
 
@@ -3715,19 +3722,14 @@ async function submitBonus(f){
    It never ends: short rounds of 8 questions, a scoreboard between rounds, and a 15-second speed round whenever you like. */
 const G = {room:null, roster:[], t:0, pingT:0, speed:0};
 const GROUP_ROUND = 8;
-/* The demo is for people who have never seen Cantonese. Each round teaches 4 short words first,
-   asks about each one straight after, then reviews them. Easy question types only, with hints. */
+/* The demo is for people who have never seen Cantonese and are using Wunny for the first time.
+   Each round is a real lesson, taught in course order: the lesson card, every new word introduced
+   with its picture and sound, then practice. The demo adds easier choices, tips and a hint button. */
 function groupRound(){
-  G.seen = G.seen || [];
-  const short = x => [...x.zh].length <= 2 && x.en.length <= 22;
-  let pool = ALL.flatMap(l=>l.items).filter(x=>short(x) && !G.seen.includes(x));
-  if(pool.length < 4){ G.seen = []; pool = ALL.flatMap(l=>l.items).filter(short); }
-  const words = [...shuffle(pool.filter(ciSrc)), ...shuffle(pool.filter(x=>!ciSrc(x)))].slice(0, 4);
-  G.seen.push(...words);
-  const steps = [];
-  words.forEach(x=>{ steps.push({t:"intro", it:x}); steps.push({t:ciSrc(x) && Math.random() < .5 ? "pic" : "meaning", it:x}); });
-  shuffle(words).forEach(x=>steps.push({t:pick(["meaning","reverse"]), it:x}));
-  return steps;
+  G.li = (G.li == null ? -1 : G.li) + 1;
+  const L = ALL[G.li % ALL.length];
+  G.seen = [...(G.seen || []), ...L.items];
+  return buildSteps(L, "new").filter(st=>st.t!=="speed").map(st=>({...st, L}));
 }
 const DEMO = () => Q && Q.mode==="group";
 function demoHelp(st, it){
@@ -3735,6 +3737,10 @@ function demoHelp(st, it){
     meaning: `Look at the picture and the sound. You met <b>${esc(it.zh)}</b> a moment ago.`,
     reverse: `Find the word that sounds like <b>${esc(sylls(it.jp).join(" ").replace(/[1-6]/g,""))}</b>.`,
     pic: `Hover or tap the picture to see the English. Then pick its word.`,
+    listen: `Tap the speaker as often as you like. Try <b>Slow</b> if it's too fast.`,
+    hear: `Listen as many times as you like. It's one of the words you just met.`,
+    context: `The missing word is one you just learned. Read the English for a clue.`,
+    sentence: `Listen for a word you know. It points to the right answer.`,
   };
   const left = st.opts ? st.opts.length - 1 - (st.cut||0) : 0;
   return `<div class="demo-help"><p>${tips[st.t] || "You've got this. Take your time."}</p>
@@ -3750,7 +3756,7 @@ function useHint(){
 }
 function openGroup(){
   $("#groupIn").innerHTML = `<div class="dlg-h"><h2 id="groupTitle">Join a group session</h2><button class="icon-btn" type="button" data-close aria-label="Close">${IC.x}</button></div>
-    <p class="lead" style="margin:0">Play the same quick lesson as your friends and watch the scoreboard. The open room right now is <b>demo</b>.</p>
+    <p class="lead" style="margin:0">Learn the same lessons as your friends, step by step, and watch the scoreboard. No Cantonese needed to start. The open room right now is <b>demo</b>.</p>
     <form class="pform" id="groupForm" novalidate>
       <div class="field"><label for="gRoom">Room name</label><input class="inp" id="gRoom" value="demo" autocapitalize="none" autocorrect="off" spellcheck="false" maxlength="24"></div>
       <div class="field"><label for="gPw">Room password</label><input class="inp" id="gPw" type="password" autocomplete="off" autocapitalize="none" spellcheck="false"></div>
@@ -3767,7 +3773,7 @@ async function submitGroup(f){
   b.disabled = true; b.textContent = "Joining…";
   try{
     const r = await api("/group/join", {method:"POST", body:{room, password}});
-    G.room = r.room; G.roster = r.roster || []; G.speed = 0; G.seen = [];
+    G.room = r.room; G.roster = r.roster || []; G.speed = 0; G.seen = []; G.li = -1;
     $("#groupDlg").close(); startGroup();
   }catch(e){ err.textContent = e.message; b.disabled = false; b.textContent = "Join the room"; }
 }

@@ -34,6 +34,10 @@ async function checkPassword(password, user) {
 const isAdmin = (name) => ADMINS.includes(name);
 const publicUser = (u) => ({ username: u.username, admin: isAdmin(u.username), ...(u.pending ? { pending: true } : {}) });
 
+// Fake, joke or offensive names are refused outright: no account is made.
+const BLOCKED_NAME_PARTS = ["torture","murder","killer","kills","killing","suicide","terror","nazis","hitler","rapist","raping","porno","sexy","fuck","bullshit","shitty","bitch","cunt","penis","vagina","nigg","faggot","retard","slut","whore","hentai","boobs","poop","fart","kkk","pedo","molest","incest","cocaine","deez","nuts","balls","dildo","horny","jizz","wank","twat","bastard","damn","satan","devil","demon","death","dead","blood","stab","shoot","bomb","jihad","slave","racist","fake","anon","nobody","noname","unknown","asdf","qwerty","test","admin","guest","username","password","wunny","raccoon","lol","lmao","haha","hehe","bruh","sigma","skibidi","rizz","gyat","ohio","mewing","poggers","yeet","noob","troll","idiot","stupid","dumb","loser","sucks","ugly","fatass","hacker","spam","demo","sample","example","janedoe","johndoe","firstname","lastname","epic","legend","queen","batman","superman","spiderman","pikachu","sonic","naruto","goku","shrek","barbie","awesome","angry"];
+export const blockedName = (name) => BLOCKED_NAME_PARTS.find(w => name.includes(w)) || null;
+
 // Gibberish check for new usernames (first + last name as one word).
 // It only flags: a flagged name still gets an account, but waits for an admin to accept it,
 // so rare real names are never turned away by the filter alone.
@@ -198,6 +202,8 @@ export function makeHandler(store, getEnv = () => undefined) {
           return json(400, { error: "Usernames use lowercase English letters only, with no spaces. Example: janedoe." });
         if (password.length < 8 || password.length > 200)
           return json(400, { error: "Your password needs at least 8 characters." });
+        if (blockedName(username))
+          return json(400, { error: "That doesn't look like a real first and last name. Wunny only makes accounts for real names." });
         if (await getUser(username))
           return json(409, { error: "That username is already taken. If it's yours, log in instead." });
         const now = Date.now();
