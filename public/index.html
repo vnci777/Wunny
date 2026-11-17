@@ -545,6 +545,11 @@ button.linkish:hover{text-decoration-color:currentColor}
 .spic.lost figcaption small{color:#56677D}
 .done-art.streak-pic{width:160px;height:160px;object-fit:contain;border-radius:32px;box-shadow:0 6px 0 #f0c9a8,0 20px 40px -14px rgba(226,84,27,.5)}
 .demo-pic{width:96px;height:96px;object-fit:contain;margin:0 auto 4px}
+.ig-art{width:72px;height:72px;object-fit:contain;margin:0 auto}
+.ig-field{display:flex;align-items:center;gap:6px;margin-top:6px;padding:0 14px;border-radius:14px;border:1.5px solid #CFE3FF;background:#fff}
+.ig-field:focus-within{border-color:var(--sky,#3AA7FF);box-shadow:0 0 0 3px rgba(58,167,255,.2)}
+.ig-field span{font-weight:800;color:#1677F2}
+.ig-field input{flex:1;border:0;outline:0;background:transparent;font:inherit;font-size:16px;font-weight:600;padding:13px 0;color:var(--ink)}
 .sp-rules{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:8px}
 .sp-rules li{padding:11px 14px;border-radius:14px;background:#EEF6FF;font-weight:600;color:var(--ink)}
 .build-ans{min-height:64px;display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:10px 12px;border-radius:18px;border:2px dashed var(--line-2);background:#fff;transition:border-color .2s,background .2s}
@@ -1306,6 +1311,20 @@ img{height:auto}
   <div class="dlg-h"><h2 id="tonesTitle">Tones guide</h2><button class="icon-btn" type="button" data-close aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
   <div id="tonesBox" style="display:flex;flex:1;min-height:0"></div>
 </div></dialog>
+<dialog id="igDlg" aria-labelledby="igTitle"><div class="dlg">
+  <img class="ig-art" id="igArt" alt="">
+  <h2 id="igTitle" style="margin:0;font-size:24px;letter-spacing:-.03em;text-align:center">Want reminders from Wunny?</h2>
+  <p class="lead" style="text-align:center;margin:0">Share your Instagram and we'll send you friendly reminders to keep your streak going.</p>
+  <form id="igForm" novalidate>
+    <label class="sr" for="igHandle">Your Instagram username</label>
+    <div class="ig-field"><span aria-hidden="true">@</span><input id="igHandle" autocomplete="off" autocapitalize="none" spellcheck="false" maxlength="31" placeholder="yourinstagram"></div>
+    <p class="err" id="igErr" role="alert" style="margin:6px 0 0"></p>
+    <div class="row" style="justify-content:center;gap:10px;margin-top:14px">
+      <button class="btn ghost" type="button" id="igLater">Maybe later</button>
+      <button class="btn" type="submit" id="igSend">Send</button>
+    </div>
+  </form>
+</div></dialog>
 <dialog id="spDlg" aria-labelledby="spTitle"><div class="dlg">
   <h2 id="spTitle" style="margin:0;font-size:24px;letter-spacing:-.03em;text-align:center">Before you start</h2>
   <p class="lead" style="text-align:center;margin:0">The speed round is just for practice.</p>
@@ -1888,7 +1907,40 @@ const peekHTML = () => `<div class="peek" aria-hidden="true"><div class="ph"><im
 const fxHTML = () => `<div class="fx" aria-hidden="true">${FLOAT.map(([c,x,y,sz,d,dl])=>`<span style="--x:${x};--y:${y};--s:${sz};--d:${d};--dl:${dl}">${c}</span>`).join("")}</div>`;
 function heroTitle(t){ const p = t.split(" "); const last = p.pop(); return `${esc(p.join(" "))}${p.length?" ":""}<span class="g">${esc(last)}</span>`; }
 
+/* Instagram ask for one learner we can't otherwise reach (rhysmercado).
+   Shows at most once a day: "Maybe later" twice, then the third time "Decline forever".
+   A handle goes to the admins' contact messages. */
+const IG_USERS = ["rhysmercado"];
+let igAskedThisLoad = false;
+function igState(){ try{ return JSON.parse(lsGet("wunny-ig-"+AUTH.profile.username) || "{}"); }catch(e){ return {}; } }
+function igSave(v){ lsSet("wunny-ig-"+AUTH.profile.username, JSON.stringify(v)); }
+function igAsk(){
+  if(igAskedThisLoad || !AUTH.profile || !IG_USERS.includes(AUTH.profile.username)) return;
+  const st = igState();
+  if(st.done || st.never || st.day === today()) return;
+  const d = $("#igDlg"); if(!d || d.open || document.querySelector("dialog[open]")) return;
+  igAskedThisLoad = true;
+  const later = st.later || 0, last = later >= 2;
+  $("#igLater").textContent = last ? "Decline forever" : "Maybe later";
+  $("#igErr").textContent = ""; $("#igHandle").value = "";
+  d.oncancel = e => e.preventDefault();
+  $("#igLater").onclick = () => { igSave(last ? {...st, never:true, day:today()} : {...st, later:later+1, day:today()}); d.close(); };
+  $("#igForm").onsubmit = async e => {
+    e.preventDefault();
+    const h = $("#igHandle").value.trim().replace(/^@+/,"").replace(/^https?:\/\/(www\.)?instagram\.com\//i,"").replace(/[/?].*$/,"");
+    if(!/^[A-Za-z0-9._]{1,30}$/.test(h)) { $("#igErr").textContent = "That doesn't look like an Instagram username. Try again."; return; }
+    const b = $("#igSend"); b.disabled = true; b.textContent = "Sending…";
+    try{
+      await api("/contact", {method:"POST", body:{name:"Instagram for reminders", message:`${AUTH.profile.username} shared their Instagram for reminders: @${h} (https://www.instagram.com/${h}/)`}});
+      igSave({...st, done:true, day:today()}); d.close(); toast("Thanks! We'll send reminders on Instagram.");
+    }catch(err){ $("#igErr").textContent = (err && err.message) || "Couldn't send that. Try again in a moment."; }
+    b.disabled = false; b.textContent = "Send";
+  };
+  $("#igArt").src = ART.hug;
+  d.showModal(); setTimeout(()=>$("#igHandle").focus(), 50);
+}
 function renderHome(){
+  setTimeout(igAsk, 900);
   const nx = nextIndex(), ls = liveStreak(), doneN = Object.keys(S.done).length;
   const restToday = nx!==-1 && lessonState(nx)==="tomorrow";
   let hero;
