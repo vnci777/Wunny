@@ -79,6 +79,19 @@
   button.on .wave i{animation:bar .5s ease-in-out infinite alternate}
   .wave i:nth-child(2){animation-delay:.1s}.wave i:nth-child(3){animation-delay:.2s}.wave i:nth-child(4){animation-delay:.3s}
   @keyframes bar{to{height:16px}}
+  .nine{display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap;margin:22px auto 26px}
+  .nine .chip{display:flex;flex-direction:column;align-items:center;gap:2px;padding:12px 18px;border-radius:18px;background:#fff;border:1px solid var(--line);box-shadow:0 3px 0 var(--line)}
+  .nine .chip b{font-size:1.9rem;font-weight:800;letter-spacing:-.04em;line-height:1}
+  .nine .chip small{font-size:.78rem;font-weight:700;color:var(--muted)}
+  .nine .chip.alt b{background:var(--grad2);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .nine .chip.sum b{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .nine .op{font-size:1.6rem;font-weight:800;color:var(--muted)}
+  .card.short .tp{stroke:url(#gb)}
+  .card.short .ghostline{fill:none;stroke:#cfe0fb;stroke-width:6;stroke-linecap:round;stroke-dasharray:2 14}
+  .card.short .stop{stroke:#6a5cff;stroke-width:5;stroke-linecap:round}
+  .tag.alt{color:#5b45e0;background:#f1edff;border-color:#e2dbff}
+  .why{max-width:640px;margin:22px auto 0;padding:18px 20px;border-radius:20px;background:#fff;border:1px solid var(--line);color:var(--muted);font-size:.95rem}
+  .why b{color:var(--navy)}
   @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.reveal{opacity:1;transform:none}}
 </style>
 </head>
@@ -121,6 +134,16 @@
 
   <h2 class="reveal">Tricky <span>Pairs</span></h2>
   <div class="pairs" id="pairs"></div>
+
+  <h2 class="reveal">Wait, Isn't It <span>Nine</span> Tones?</h2>
+  <p class="lead reveal">Technically, yes! Traditional Cantonese counts <b>9 tones</b>. The extra three are short versions of tones you already know.</p>
+  <div class="nine reveal" aria-label="6 tones plus 3 short tones makes 9">
+    <div class="chip"><b>6</b><small>long tones</small></div><span class="op">+</span>
+    <div class="chip alt"><b>3</b><small>short tones</small></div><span class="op">=</span>
+    <div class="chip sum"><b>9</b><small>tones in all</small></div>
+  </div>
+  <div class="grid" id="grid9"></div>
+  <div class="why reveal"><b>Why does Wunny only teach 6?</b> The 3 short tones only happen in words ending in <b>-p</b>, <b>-t</b> or <b>-k</b>. Your voice stops quickly, but the pitch is the same as Tone 1, 3 or 6. So Jyutping, and Wunny, just write them as 1, 3 and 6. Learn the six, and you already know all nine!</div>
 
   <h2 class="reveal">Try It <span>Yourself</span></h2>
   <div class="quiz reveal">
@@ -209,6 +232,33 @@ TONES.forEach(t=>{
   el.addEventListener("mouseenter",()=>animate(svg));
   el._play=()=>animate(svg);
   grid.appendChild(el);
+});
+
+/* The 3 "entering" tones: same pitch as 1, 3, 6 but cut short by a final -p, -t or -k. */
+const SHORT = [
+  {n:7, like:1, name:"High and short", c:[5,5], desc:"Same height as Tone 1, but stop quickly. Your voice is cut off by the -k.", zh:"色", jp:"sik1", en:"colour"},
+  {n:8, like:3, name:"Middle and short", c:[3,3], desc:"Same height as Tone 3, but clipped short. Like a quick, flat \"sek!\"", zh:"錫", jp:"sek3", en:"to kiss"},
+  {n:9, like:6, name:"Low and short", c:[2,2], desc:"Same height as Tone 6, but chopped off fast. Low, calm and quick.", zh:"食", jp:"sik6", en:"to eat"},
+];
+const SX = X0 + 90;
+const shortSVG = t => `<svg class="tone-svg" viewBox="0 0 ${W} ${H}" aria-hidden="true">${gridLines()}
+  <path class="ghostline" d="M${X0},${yOf(t.c[0])} L${X1},${yOf(t.c[1])}"/>
+  <path class="tp" d="M${X0},${yOf(t.c[0])} L${SX},${yOf(t.c[0])}"/>
+  <line class="stop" x1="${SX+18}" x2="${SX+18}" y1="${yOf(t.c[0])-16}" y2="${yOf(t.c[0])+16}"/>
+  <circle class="dot" cx="${X0}" cy="${yOf(t.c[0])}" r="9"/><circle class="dot" cx="${SX}" cy="${yOf(t.c[0])}" r="9"/></svg>`;
+const grid9=document.getElementById("grid9");
+SHORT.forEach(t=>{
+  const el=document.createElement("div"); el.className="card short reveal";
+  el.innerHTML=`<h3>Tone <span>${t.n}</span></h3><div class="tag alt">${t.name} · written as ${t.like}</div>${shortSVG(t)}<p>${t.desc}</p>
+    <div class="word"><div class="zh" lang="zh-HK">${t.zh}</div><div><div class="jp">${t.jp}</div><div class="en">${t.en}</div></div></div>
+    <div class="btns"><button class="b-hum" type="button">Hum</button><button class="ghost b-say" type="button">Say it</button></div>`;
+  const svg=el.querySelector("svg");
+  el.addEventListener("click",e=>{
+    animate(svg,500); el.classList.add("playing"); setTimeout(()=>el.classList.remove("playing"),700);
+    if(e.target.classList.contains("b-say")) say(t.zh); else hum(t.c,0.22);
+  });
+  el.addEventListener("mouseenter",()=>animate(svg,500));
+  grid9.appendChild(el);
 });
 
 const PAIRS=[[3,6,"Both are flat. Tone 6 sits lower."],[2,5,"Both rise. Tone 2 ends much higher."],[4,6,"Both are low. Tone 4 drops, Tone 6 stays."]];
